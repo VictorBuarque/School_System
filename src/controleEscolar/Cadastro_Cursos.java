@@ -8,11 +8,12 @@ import java.sql.*;
 
 public class Cadastro_Cursos {
 
-    private JFrame CadadastroDeCursos;
+    private JFrame CadastroDeCursos;
     private JTextField txtFldid_Curso;
     private JTextField txtFldNomeCursos;
     private JTextField textFldid_Coordenador;
     private JTable table;
+    private JComboBox<String> comboBox;
     private DefaultTableModel model;
     private Connection conexao;
     private PreparedStatement mypst;
@@ -23,7 +24,7 @@ public class Cadastro_Cursos {
             public void run() {
                 try {
                     Cadastro_Cursos window = new Cadastro_Cursos();
-                    window.CadadastroDeCursos.setVisible(true);
+                    window.CadastroDeCursos.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -36,133 +37,129 @@ public class Cadastro_Cursos {
     }
 
     private void initialize() {
-        CadadastroDeCursos = new JFrame();
-        CadadastroDeCursos.getContentPane().setBackground(SystemColor.activeCaption);
-        CadadastroDeCursos.setBackground(SystemColor.inactiveCaption);
-        CadadastroDeCursos.setForeground(SystemColor.inactiveCaption);
-        CadadastroDeCursos.setFont(new Font("Arial", Font.PLAIN, 14));
-        CadadastroDeCursos.setTitle("Cadastro de Cursos");
-        CadadastroDeCursos.setBounds(100, 100, 800, 500);
-        CadadastroDeCursos.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        CadadastroDeCursos.getContentPane().setLayout(null);
+        CadastroDeCursos = new JFrame();
+        CadastroDeCursos.getContentPane().setBackground(SystemColor.activeCaption);
+        CadastroDeCursos.setBackground(SystemColor.inactiveCaption);
+        CadastroDeCursos.setForeground(SystemColor.inactiveCaption);
+        CadastroDeCursos.setFont(new Font("Arial", Font.PLAIN, 14));
+        CadastroDeCursos.setTitle("Cadastro de Cursos");
+        CadastroDeCursos.setBounds(100, 100, 800, 500);
+        CadastroDeCursos.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        CadastroDeCursos.getContentPane().setLayout(null);
 
         model = new DefaultTableModel();
         model.addColumn("ID_Curso");
         model.addColumn("Nome_Curso");
         model.addColumn("ID_Coordenador");
         
-
         txtFldid_Curso = new JTextField();
-        txtFldid_Curso.setBounds(101, 69, 163, 35);
+        txtFldid_Curso.setFont(new Font("Arial", Font.PLAIN, 12));
+        txtFldid_Curso.setBounds(101, 68, 163, 35);
         txtFldid_Curso.setColumns(10);
-        CadadastroDeCursos.getContentPane().add(txtFldid_Curso);
+        CadastroDeCursos.getContentPane().add(txtFldid_Curso);
 
         txtFldNomeCursos = new JTextField();
+        txtFldNomeCursos.setFont(new Font("Arial", Font.PLAIN, 12));
         txtFldNomeCursos.setBounds(101, 113, 163, 35);
         txtFldNomeCursos.setColumns(10);
-        CadadastroDeCursos.getContentPane().add(txtFldNomeCursos);
+        CadastroDeCursos.getContentPane().add(txtFldNomeCursos);
 
-        textFldid_Coordenador = new JTextField();
-        textFldid_Coordenador.setBounds(101, 158, 163, 35);
-        textFldid_Coordenador.setColumns(10);
-        CadadastroDeCursos.getContentPane().add(textFldid_Coordenador);
+        comboBox = new JComboBox<>();
+        comboBox.setFont(new Font("Arial", Font.PLAIN, 12));
+        comboBox.setBounds(101, 159, 163, 31);
+        CadastroDeCursos.getContentPane().add(comboBox);
+        try {
+            conexao = Controle_EscolarConnection.ConnectDb();
+            if (conexao != null) {
+                String sql = "SELECT * FROM coordenacao";
+                try (Statement stmt = conexao.createStatement();
+                     ResultSet rs = stmt.executeQuery(sql)) {
+                    while (rs.next()) {
+                        String idCoordenador = rs.getString("id_Coordenador");
+                        comboBox.addItem(idCoordenador);
+                    }
+                }
+            }
+        } catch (Exception erro) {
+            JOptionPane.showMessageDialog(CadastroDeCursos, erro);
+        }
+
+        CadastroDeCursos.setVisible(true);
 
         JLabel lblNewLabel = new JLabel("ID Curso:");
         lblNewLabel.setForeground(SystemColor.infoText);
-        lblNewLabel.setBounds(41, 71, 58, 31);
+        lblNewLabel.setBounds(41, 70, 58, 31);
         lblNewLabel.setFont(new Font("Arial", Font.BOLD, 13));
-        CadadastroDeCursos.getContentPane().add(lblNewLabel);
+        CadastroDeCursos.getContentPane().add(lblNewLabel);
 
         JLabel lblNewLabel_1 = new JLabel("Curso:");
         lblNewLabel_1.setBounds(57, 118, 42, 31);
         lblNewLabel_1.setFont(new Font("Arial", Font.BOLD, 13));
-        CadadastroDeCursos.getContentPane().add(lblNewLabel_1);
+        CadastroDeCursos.getContentPane().add(lblNewLabel_1);
 
         JLabel lblNewLabel_2 = new JLabel("ID Coord.:");
         lblNewLabel_2.setBounds(32, 160, 66, 31);
         lblNewLabel_2.setFont(new Font("Arial", Font.BOLD, 13));
-        CadadastroDeCursos.getContentPane().add(lblNewLabel_2);
+        CadastroDeCursos.getContentPane().add(lblNewLabel_2);
 
-        JButton btnInserir = new JButton("Salvar");
-        btnInserir.setFont(new Font("Arial", Font.BOLD, 12));
-        btnInserir.setBackground(new Color(255, 255, 255));
-        btnInserir.setBounds(686, 69, 89, 35);
-        btnInserir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                conexao = Controle_EscolarConnection.ConnectDb();
-                if (conexao != null) {
-                    String sql = "INSERT INTO curso(id_Curso, nome_Curso, id_Coordenador) VALUES (?, ?, ?)";
-                    try {
-                        mypst = conexao.prepareStatement(sql);
-                        mypst.setString(1, txtFldid_Curso.getText());
-                        mypst.setString(2, txtFldNomeCursos.getText());
-                        mypst.setString(3, textFldid_Coordenador.getText());
-                        mypst.executeUpdate();
-                        JOptionPane.showMessageDialog(null, "Cursos inserido com sucesso!");
-                        updateTable();
-                        txtFldid_Curso.setText("");
-                        txtFldNomeCursos.setText("");
-                        textFldid_Coordenador.setText("");
-                        
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(null, ex);
-                    } finally {
-                        try {
-                            myrs.close();
-                            mypst.close();
-                            conexao.close();
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(null, ex);
-                        }
-                    }
+        JButton btnSalvar = new JButton("Salvar");
+        btnSalvar.setBackground(SystemColor.text);
+        btnSalvar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                String idCurso = txtFldid_Curso.getText();
+                String nomeCurso = txtFldNomeCursos.getText();
+                String idCoordenador = comboBox.getSelectedItem().toString();
+                try {
+                    conexao = Controle_EscolarConnection.ConnectDb();
+                    String sql = "INSERT INTO curso (id_curso, nome_curso, id_coordenador) VALUES (?,?,?)";
+                    mypst = conexao.prepareStatement(sql);
+                    mypst.setString(1, idCurso);
+                    mypst.setString(2, nomeCurso);
+                    mypst.setString(3, idCoordenador);
+                    mypst.executeUpdate();
+                    JOptionPane.showMessageDialog(CadastroDeCursos, "Dados inseridos com sucesso!");
+                    mypst.close();
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(CadastroDeCursos, e);
                 }
+                updateTable();
             }
         });
-        CadadastroDeCursos.getContentPane().add(btnInserir);
+        btnSalvar.setFont(new Font("Arial", Font.BOLD, 12));
+        btnSalvar.setBounds(686, 69, 89, 31);
+        CadastroDeCursos.getContentPane().add(btnSalvar);
 
         JButton btnAlterar = new JButton("Alterar");
-        btnAlterar.setFont(new Font("Arial", Font.BOLD, 12));
-        btnAlterar.setBackground(new Color(255, 255, 255));
-        btnAlterar.setBounds(686, 115, 89, 35);
+        btnAlterar.setBackground(SystemColor.text);
         btnAlterar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                conexao = Controle_EscolarConnection.ConnectDb();
-                if (conexao != null) {
-                    int row = table.getSelectedRow();
-                    if (row != -1) {
-                        String id_Curso = table.getValueAt(row, 0).toString();
-                        String sql = "UPDATE curso SET nome_Curso=?, id_Coordenador=? WHERE id_Curso=?";
-                        try {
-                            mypst = conexao.prepareStatement(sql);
-                            mypst.setString(1, txtFldNomeCursos.getText());
-                            mypst.setString(2, textFldid_Coordenador.getText());
-                            mypst.setString(3, txtFldEndereco.getText());
-                            mypst.setString(4, id_Curso);
-                            mypst.executeUpdate();
-                            JOptionPane.showMessageDialog(null, "Dados alterados com sucesso!");
-                            updateTable();
-                            txtFldid_Curso.setText("");
-                            txtFldNomeCursos.setText("");
-                            textFldid_Coordenador.setText("");
-                            
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(null, ex);
-                        } finally {
-                            try {
-                                myrs.close();
-                                mypst.close();
-                                conexao.close();
-                            } catch (Exception ex) {
-                                JOptionPane.showMessageDialog(null, ex);
-                            }
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Selecione um curso na tabela para realizar a alteração.");
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(CadastroDeCursos, "Selecione um curso para alterar.");
+                } else {
+                    String idCurso = txtFldid_Curso.getText();
+                    String nomeCurso = txtFldNomeCursos.getText();
+                    String idCoordenador = comboBox.getSelectedItem().toString();
+                    try {
+                        conexao = Controle_EscolarConnection.ConnectDb();
+                        String sql = "UPDATE curso SET nome_curso=?, id_coordenador=? WHERE id_curso=?";
+                        mypst = conexao.prepareStatement(sql);
+                        mypst.setString(1, nomeCurso);
+                        mypst.setString(2, idCoordenador);
+                        mypst.setString(3, idCurso);
+                        mypst.executeUpdate();
+                        JOptionPane.showMessageDialog(CadastroDeCursos, "Dados alterados com sucesso!");
+                        mypst.close();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(CadastroDeCursos, ex);
                     }
+                    updateTable();
                 }
             }
         });
-        CadadastroDeCursos.getContentPane().add(btnAlterar);
+        btnAlterar.setFont(new Font("Arial", Font.BOLD, 12));
+        btnAlterar.setBounds(686, 114, 90, 31);
+        CadastroDeCursos.getContentPane().add(btnAlterar);
 
         JButton btnExcluir = new JButton("Excluir");
         btnExcluir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -203,13 +200,13 @@ public class Cadastro_Cursos {
                 }
             }
         });
-        CadadastroDeCursos.getContentPane().add(btnExcluir);
+        CadastroDeCursos.getContentPane().add(btnExcluir);
         
         JButton btnConsulta = new JButton("Consultar");
         btnConsulta.setBackground(new Color(255, 255, 255));
 		btnConsulta.setFont(new Font("Arial", Font.BOLD, 12));
 		btnConsulta.setBounds(686, 203, 89, 35);
-		CadadastroDeCursos.getContentPane().add(btnConsulta);
+		CadastroDeCursos.getContentPane().add(btnConsulta);
 		btnConsulta.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String id_Curso = JOptionPane.showInputDialog(null, "Informe a matrícula do aluno:");
@@ -250,7 +247,7 @@ public class Cadastro_Cursos {
 		btnLimpar.setBackground(new Color(255, 255, 255));
 		btnLimpar.setFont(new Font("Arial", Font.BOLD, 12));
 		btnLimpar.setBounds(686, 248, 89, 35);
-		CadadastroDeCursos.getContentPane().add(btnLimpar);
+		CadastroDeCursos.getContentPane().add(btnLimpar);
 		btnLimpar.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
 		        txtFldid_Curso.setText("");
@@ -264,7 +261,7 @@ public class Cadastro_Cursos {
         btnImprimir.setBackground(new Color(255, 255, 255));
         btnImprimir.setFont(new Font("Arial", Font.BOLD, 12));
         btnImprimir.setBounds(686, 292, 90, 35);
-        CadadastroDeCursos.getContentPane().add(btnImprimir);
+        CadastroDeCursos.getContentPane().add(btnImprimir);
         btnImprimir.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -277,7 +274,7 @@ public class Cadastro_Cursos {
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setBounds(274, 67, 402, 342);
-        CadadastroDeCursos.getContentPane().add(scrollPane);
+        CadastroDeCursos.getContentPane().add(scrollPane);
         
         JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
     	lblNewLabel_11.setForeground(SystemColor.infoText);
@@ -286,7 +283,7 @@ public class Cadastro_Cursos {
     	lblNewLabel_11.setBackground(SystemColor.activeCaption);
     	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
     	lblNewLabel_11.setBounds(10, 411, 765, 42);
-    	CadadastroDeCursos.getContentPane().add(lblNewLabel_11);
+    	CadastroDeCursos.getContentPane().add(lblNewLabel_11);
 
         table = new JTable(model);
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -309,7 +306,7 @@ public class Cadastro_Cursos {
         lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
         lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
         lblNewLabel_11_1.setBounds(0, 10, 785, 42);
-        CadadastroDeCursos.getContentPane().add(lblNewLabel_11_1);
+        CadastroDeCursos.getContentPane().add(lblNewLabel_11_1);
         updateTable();
     }
     	
