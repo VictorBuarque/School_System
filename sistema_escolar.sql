@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 17/05/2023 às 22:47
+-- Tempo de geração: 27/06/2023 às 23:21
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -29,10 +29,23 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `alunos` (
   `nr_Matricula` int(11) NOT NULL,
-  `nome_Aluno(a)` varchar(70) NOT NULL,
-  `cpf_Aluno` int(11) NOT NULL,
-  `endereco_Aluno` int(11) NOT NULL
+  `nome_Aluno` varchar(70) NOT NULL,
+  `cpf_Aluno` varchar(11) NOT NULL,
+  `endereco_Aluno` varchar(70) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `alunos`
+--
+
+INSERT INTO `alunos` (`nr_Matricula`, `nome_Aluno`, `cpf_Aluno`, `endereco_Aluno`) VALUES
+(1, 'victor', '12312333421', 'teste@gmail.com'),
+(2, 'Victore', '99999999957', 'rua 1'),
+(12, 'Victor G', '12345677899', ''),
+(123, 'eunice', '12336472662', 'rua 8'),
+(451, 'eraerra', '12345665432', 'dasdadas'),
+(908, 'roselmy', '12345678910', 'ruehuerhuerhur'),
+(1234, 'eustaqui', '12343532111', 'tchurubangos');
 
 -- --------------------------------------------------------
 
@@ -41,23 +54,29 @@ CREATE TABLE `alunos` (
 --
 
 CREATE TABLE `aluno_curso` (
-  `nr_matricula` int(11) NOT NULL,
-  `id_Curso` int(11) NOT NULL,
-  `data_Curso` date NOT NULL
+  `nr_Matricula` int(11) NOT NULL,
+  `id_Curso` varchar(7) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estrutura para tabela `coordenação`
+-- Estrutura para tabela `coordenacao`
 --
 
-CREATE TABLE `coordenação` (
+CREATE TABLE `coordenacao` (
   `id_Coordenador` int(11) NOT NULL,
   `nome_Coordenador` varchar(50) NOT NULL,
-  `telefone_Coodenador` int(16) NOT NULL,
-  `email_Coordenador` varchar(70) NOT NULL
+  `email_Coordenador` varchar(70) NOT NULL,
+  `cel_Coordenador` varchar(70) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `coordenacao`
+--
+
+INSERT INTO `coordenacao` (`id_Coordenador`, `nome_Coordenador`, `email_Coordenador`, `cel_Coordenador`) VALUES
+(1, 'Iran', 'iran@senai.com.br', '7199999999');
 
 -- --------------------------------------------------------
 
@@ -68,9 +87,9 @@ CREATE TABLE `coordenação` (
 CREATE TABLE `cronograma` (
   `id_Professor` int(11) NOT NULL,
   `id_Disciplina` varchar(7) NOT NULL,
-  `id_Disponibilidade` int(11) NOT NULL,
-  `id_Turma` int(11) NOT NULL,
-  `data_Hora_Cronograma` datetime NOT NULL
+  `dt_Cronograma` date NOT NULL,
+  `hr_Inicio` varchar(5) NOT NULL,
+  `hr_Fim` varchar(5) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -85,6 +104,14 @@ CREATE TABLE `curso` (
   `id_Coordenador` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `curso`
+--
+
+INSERT INTO `curso` (`id_Curso`, `nome_Curso`, `id_Coordenador`) VALUES
+('1', 'Adm', 1),
+('2', 'Des', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -94,8 +121,34 @@ CREATE TABLE `curso` (
 CREATE TABLE `disciplina` (
   `id_Disciplina` varchar(7) NOT NULL,
   `nome_Disciplina` varchar(50) NOT NULL,
-  `id_Curso` int(11) NOT NULL
+  `carga_Horaria` int(11) NOT NULL,
+  `descricao_Disciplina` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `disciplina`
+--
+
+INSERT INTO `disciplina` (`id_Disciplina`, `nome_Disciplina`, `carga_Horaria`, `descricao_Disciplina`) VALUES
+('1', 'logica', 120, 'logica');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `disciplina_curso`
+--
+
+CREATE TABLE `disciplina_curso` (
+  `id_Disciplina` varchar(7) NOT NULL,
+  `id_Curso` varchar(7) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `disciplina_curso`
+--
+
+INSERT INTO `disciplina_curso` (`id_Disciplina`, `id_Curso`) VALUES
+('1', '1');
 
 -- --------------------------------------------------------
 
@@ -105,8 +158,23 @@ CREATE TABLE `disciplina` (
 
 CREATE TABLE `disponibilidade_professores` (
   `id_Professor` int(11) NOT NULL,
-  `data_Hora` datetime NOT NULL,
-  `id_Disponibilidade` int(11) NOT NULL
+  `turno_Disponibilidade` varchar(45) NOT NULL,
+  `data_Disponibilidade` varchar(45) NOT NULL,
+  `hora_Inicio` varchar(45) NOT NULL,
+  `hora_Fim` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `frequencia_aluno`
+--
+
+CREATE TABLE `frequencia_aluno` (
+  `nr_Matricula` int(11) NOT NULL,
+  `id_Disciplina` varchar(7) NOT NULL,
+  `data_Falta` date NOT NULL,
+  `falta_Aluno` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -117,13 +185,19 @@ CREATE TABLE `disponibilidade_professores` (
 
 CREATE TABLE `notas` (
   `id_Professor` int(11) NOT NULL,
-  `id_Turma` int(11) NOT NULL,
-  `id_Curso` int(11) NOT NULL,
   `id_Disciplina` varchar(7) NOT NULL,
+  `id_Turma` int(11) NOT NULL,
   `nr_Matricula` int(11) NOT NULL,
-  `nota_Disicplina` float NOT NULL,
-  `data_Nota` date NOT NULL
+  `data_Nota` date NOT NULL,
+  `nota_Disciplina` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `notas`
+--
+
+INSERT INTO `notas` (`id_Professor`, `id_Disciplina`, `id_Turma`, `nr_Matricula`, `data_Nota`, `nota_Disciplina`) VALUES
+(1, '1', 1, 1, '2023-02-02', 10);
 
 -- --------------------------------------------------------
 
@@ -138,6 +212,13 @@ CREATE TABLE `pagamentos` (
   `valor` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `pagamentos`
+--
+
+INSERT INTO `pagamentos` (`nr_Matricula`, `id_Curso`, `data_Pagamento`, `valor`) VALUES
+(1, 1, '1993-03-20', 500);
+
 -- --------------------------------------------------------
 
 --
@@ -147,10 +228,17 @@ CREATE TABLE `pagamentos` (
 CREATE TABLE `professor` (
   `id_Professor` int(11) NOT NULL,
   `nome_Professor` varchar(50) NOT NULL,
-  `cpf_Professor` int(11) NOT NULL,
+  `cpf_Professor` varchar(11) NOT NULL,
   `email_Professor` varchar(70) NOT NULL,
-  `telefone_Professor` int(16) NOT NULL
+  `telefone_Professor` varchar(16) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `professor`
+--
+
+INSERT INTO `professor` (`id_Professor`, `nome_Professor`, `cpf_Professor`, `email_Professor`, `telefone_Professor`) VALUES
+(1, 'jorge', '11234566677', 'senai', '71999999999');
 
 -- --------------------------------------------------------
 
@@ -159,9 +247,10 @@ CREATE TABLE `professor` (
 --
 
 CREATE TABLE `professor_disciplina` (
-  `id_Disciplina` varchar(7) NOT NULL,
   `id_Professor` int(11) NOT NULL,
-  `data_Disciplina` date NOT NULL
+  `id_Disciplina` varchar(7) NOT NULL,
+  `dt_Inicio` datetime NOT NULL,
+  `dt_Fim` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -174,9 +263,16 @@ CREATE TABLE `turmas` (
   `id_Turma` int(11) NOT NULL,
   `nr_Matricula` int(11) NOT NULL,
   `id_Curso` varchar(7) NOT NULL,
-  `turno_Turma` varchar(10) NOT NULL,
+  `turno_Turma` varchar(30) NOT NULL,
   `data_Turma` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `turmas`
+--
+
+INSERT INTO `turmas` (`id_Turma`, `nr_Matricula`, `id_Curso`, `turno_Turma`, `data_Turma`) VALUES
+(1, 1, '1', 'matutino', '2003-02-28 00:00:00');
 
 --
 -- Índices para tabelas despejadas
@@ -193,20 +289,22 @@ ALTER TABLE `alunos`
 -- Índices de tabela `aluno_curso`
 --
 ALTER TABLE `aluno_curso`
-  ADD KEY `fk_Aluno1` (`nr_matricula`);
+  ADD KEY `fk_Aluno1` (`nr_Matricula`),
+  ADD KEY `fk_Curso5` (`id_Curso`);
 
 --
--- Índices de tabela `coordenação`
+-- Índices de tabela `coordenacao`
 --
-ALTER TABLE `coordenação`
+ALTER TABLE `coordenacao`
   ADD PRIMARY KEY (`id_Coordenador`);
 
 --
 -- Índices de tabela `cronograma`
 --
 ALTER TABLE `cronograma`
-  ADD KEY `fk_Professor1` (`id_Professor`),
-  ADD KEY `fk_Disciplina1` (`id_Disciplina`);
+  ADD PRIMARY KEY (`dt_Cronograma`),
+  ADD KEY `fk_Professor4` (`id_Professor`),
+  ADD KEY `fk_Disciplina2` (`id_Disciplina`);
 
 --
 -- Índices de tabela `curso`
@@ -222,15 +320,30 @@ ALTER TABLE `disciplina`
   ADD PRIMARY KEY (`id_Disciplina`);
 
 --
+-- Índices de tabela `disciplina_curso`
+--
+ALTER TABLE `disciplina_curso`
+  ADD KEY `fk_Curso4` (`id_Curso`);
+
+--
 -- Índices de tabela `disponibilidade_professores`
 --
 ALTER TABLE `disponibilidade_professores`
+  ADD PRIMARY KEY (`turno_Disponibilidade`,`data_Disponibilidade`),
   ADD KEY `fk_Professor2` (`id_Professor`);
+
+--
+-- Índices de tabela `frequencia_aluno`
+--
+ALTER TABLE `frequencia_aluno`
+  ADD KEY `fk_Aluno4` (`nr_Matricula`),
+  ADD KEY `fk_Disciplina4` (`id_Disciplina`);
 
 --
 -- Índices de tabela `notas`
 --
 ALTER TABLE `notas`
+  ADD PRIMARY KEY (`data_Nota`),
   ADD KEY `fk_Professor` (`id_Professor`),
   ADD KEY `fk_Aluno` (`nr_Matricula`),
   ADD KEY `fk_Turmas` (`id_Turma`),
@@ -240,6 +353,7 @@ ALTER TABLE `notas`
 -- Índices de tabela `pagamentos`
 --
 ALTER TABLE `pagamentos`
+  ADD PRIMARY KEY (`data_Pagamento`),
   ADD KEY `fk_aluno3` (`nr_Matricula`);
 
 --
@@ -253,8 +367,9 @@ ALTER TABLE `professor`
 -- Índices de tabela `professor_disciplina`
 --
 ALTER TABLE `professor_disciplina`
-  ADD KEY `fk_Professor3` (`id_Professor`),
-  ADD KEY `fk_Disciplina` (`id_Disciplina`);
+  ADD PRIMARY KEY (`dt_Inicio`),
+  ADD KEY `fk_Professor5` (`id_Professor`),
+  ADD KEY `fk_Disciplina3` (`id_Disciplina`);
 
 --
 -- Índices de tabela `turmas`
@@ -269,22 +384,10 @@ ALTER TABLE `turmas`
 --
 
 --
--- AUTO_INCREMENT de tabela `alunos`
---
-ALTER TABLE `alunos`
-  MODIFY `nr_Matricula` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `coordenação`
---
-ALTER TABLE `coordenação`
-  MODIFY `id_Coordenador` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de tabela `professor`
 --
 ALTER TABLE `professor`
-  MODIFY `id_Professor` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_Professor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restrições para tabelas despejadas
@@ -294,26 +397,40 @@ ALTER TABLE `professor`
 -- Restrições para tabelas `aluno_curso`
 --
 ALTER TABLE `aluno_curso`
-  ADD CONSTRAINT `fk_Aluno1` FOREIGN KEY (`nr_matricula`) REFERENCES `alunos` (`nr_Matricula`);
+  ADD CONSTRAINT `fk_Aluno1` FOREIGN KEY (`nr_Matricula`) REFERENCES `alunos` (`nr_Matricula`),
+  ADD CONSTRAINT `fk_Curso5` FOREIGN KEY (`id_Curso`) REFERENCES `curso` (`id_Curso`);
 
 --
 -- Restrições para tabelas `cronograma`
 --
 ALTER TABLE `cronograma`
-  ADD CONSTRAINT `fk_Disciplina1` FOREIGN KEY (`id_Disciplina`) REFERENCES `disciplina` (`id_Disciplina`),
-  ADD CONSTRAINT `fk_Professor1` FOREIGN KEY (`id_Professor`) REFERENCES `professor` (`id_Professor`);
+  ADD CONSTRAINT `fk_Disciplina2` FOREIGN KEY (`id_Disciplina`) REFERENCES `disciplina` (`id_Disciplina`),
+  ADD CONSTRAINT `fk_Professor4` FOREIGN KEY (`id_Professor`) REFERENCES `professor` (`id_Professor`);
 
 --
 -- Restrições para tabelas `curso`
 --
 ALTER TABLE `curso`
-  ADD CONSTRAINT `fk_coord` FOREIGN KEY (`id_Coordenador`) REFERENCES `coordenação` (`id_Coordenador`);
+  ADD CONSTRAINT `fk_coord` FOREIGN KEY (`id_Coordenador`) REFERENCES `coordenacao` (`id_Coordenador`);
+
+--
+-- Restrições para tabelas `disciplina_curso`
+--
+ALTER TABLE `disciplina_curso`
+  ADD CONSTRAINT `fk_Curso4` FOREIGN KEY (`id_Curso`) REFERENCES `curso` (`id_Curso`);
 
 --
 -- Restrições para tabelas `disponibilidade_professores`
 --
 ALTER TABLE `disponibilidade_professores`
   ADD CONSTRAINT `fk_Professor2` FOREIGN KEY (`id_Professor`) REFERENCES `professor` (`id_Professor`);
+
+--
+-- Restrições para tabelas `frequencia_aluno`
+--
+ALTER TABLE `frequencia_aluno`
+  ADD CONSTRAINT `fk_Aluno4` FOREIGN KEY (`nr_Matricula`) REFERENCES `alunos` (`nr_Matricula`),
+  ADD CONSTRAINT `fk_Disciplina4` FOREIGN KEY (`id_Disciplina`) REFERENCES `disciplina` (`id_Disciplina`);
 
 --
 -- Restrições para tabelas `notas`
@@ -334,8 +451,8 @@ ALTER TABLE `pagamentos`
 -- Restrições para tabelas `professor_disciplina`
 --
 ALTER TABLE `professor_disciplina`
-  ADD CONSTRAINT `fk_Disciplina` FOREIGN KEY (`id_Disciplina`) REFERENCES `disciplina` (`id_Disciplina`),
-  ADD CONSTRAINT `fk_Professor3` FOREIGN KEY (`id_Professor`) REFERENCES `professor` (`id_Professor`);
+  ADD CONSTRAINT `fk_Disciplina3` FOREIGN KEY (`id_Disciplina`) REFERENCES `disciplina` (`id_Disciplina`),
+  ADD CONSTRAINT `fk_Professor5` FOREIGN KEY (`id_Professor`) REFERENCES `professor` (`id_Professor`);
 
 --
 -- Restrições para tabelas `turmas`
