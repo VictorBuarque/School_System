@@ -5,6 +5,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Cadastro_Cursos {
 
@@ -75,7 +77,8 @@ public class Cadastro_Cursos {
                 try (Statement stmt = conexao.createStatement();
                      ResultSet rs = stmt.executeQuery(sql)) {
                     while (rs.next()) {
-                        String idCoordenador = rs.getString("id_Coordenador");
+                        String idCoordenador = rs.getString("nome_Coordenador");
+                        comboBox.addItem("");
                         comboBox.addItem(idCoordenador);
                     }
                 }
@@ -105,26 +108,33 @@ public class Cadastro_Cursos {
         JButton btnSalvar = new JButton("Salvar");
         btnSalvar.setBackground(SystemColor.text);
         btnSalvar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                String idCurso = txtFldid_Curso.getText();
-                String nomeCurso = txtFldNomeCursos.getText();
-                String idCoordenador = comboBox.getSelectedItem().toString();
-                try {
-                    conexao = Controle_EscolarConnection.ConnectDb();
-                    String sql = "INSERT INTO curso (id_curso, nome_curso, id_coordenador) VALUES (?,?,?)";
-                    mypst = conexao.prepareStatement(sql);
-                    mypst.setString(1, idCurso);
-                    mypst.setString(2, nomeCurso);
-                    mypst.setString(3, idCoordenador);
-                    mypst.executeUpdate();
-                    JOptionPane.showMessageDialog(CadastroDeCursos, "Dados inseridos com sucesso!");
-                    mypst.close();
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(CadastroDeCursos, e);
+        	public void actionPerformed(ActionEvent e) {
+                if (JOptionPane.showConfirmDialog(CadastroDeCursos, "Confirmar inclusão do registro?", "Definir cronograma",
+                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+	                	String idCurso = txtFldid_Curso.getText();
+	                    String nomeCurso = txtFldNomeCursos.getText();
+                        String idCoordenador = obterIdCoordenador((String) comboBox.getSelectedItem());
+                            try {
+                                var myConn = Controle_EscolarConnection.ConnectDb();
+                                if (myConn != null) {
+                                    String sqlInsert = "INSERT INTO curso (id_Curso,nome_Curso, id_Coordenador) VALUES (?, ?, ?)";
+                                    PreparedStatement pstmtInsert = myConn.prepareStatement(sqlInsert);
+                                    pstmtInsert.setString(1, idCurso);
+                                    pstmtInsert.setString(2, nomeCurso);
+                                    pstmtInsert.setString(3, idCoordenador);
+                                    pstmtInsert.executeUpdate();
+                                    pstmtInsert.close();
+                                    myConn.close(); }
+                                else {
+                                    JOptionPane.showMessageDialog(CadastroDeCursos, "Preencha todos os campos obrigatórios");
+                                }
+                            } catch (SQLException ex) {
+                                JOptionPane.showMessageDialog(CadastroDeCursos, "Erro ao incluir registro: " + ex.getMessage());
+                            }
+                        }
+                    } 
                 }
-                updateTable();
-            }
-        });
+        	);
         btnSalvar.setFont(new Font("Arial", Font.BOLD, 12));
         btnSalvar.setBounds(686, 69, 89, 31);
         CadastroDeCursos.getContentPane().add(btnSalvar);
@@ -139,7 +149,7 @@ public class Cadastro_Cursos {
                 } else {
                     String idCurso = txtFldid_Curso.getText();
                     String nomeCurso = txtFldNomeCursos.getText();
-                    String idCoordenador = comboBox.getSelectedItem().toString();
+                    String idCoordenador = obterIdCoordenador((String)comboBox.getSelectedItem().toString());
                     try {
                         conexao = Controle_EscolarConnection.ConnectDb();
                         String sql = "UPDATE curso SET nome_curso=?, id_coordenador=? WHERE id_curso=?";
@@ -171,17 +181,17 @@ public class Cadastro_Cursos {
                 if (conexao != null) {
                     int row = table.getSelectedRow();
                     if (row != -1) {
-                        String id_Curso = table.getValueAt(row, 0).toString();
+                        String idCurso = table.getValueAt(row, 0).toString();
                         String sql = "DELETE FROM curso WHERE id_Curso=?";
                         try {
                             mypst = conexao.prepareStatement(sql);
-                            mypst.setString(1, id_Curso);
+                            mypst.setString(1, idCurso);
                             mypst.executeUpdate();
                             JOptionPane.showMessageDialog(null, "Cursos excluído com sucesso!");
                             updateTable();
                             txtFldid_Curso.setText("");
                             txtFldNomeCursos.setText("");
-                            textFldid_Coordenador.setText("");
+                            comboBox.setToolTipText("");
                             
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(null, ex);
@@ -252,7 +262,7 @@ public class Cadastro_Cursos {
 		    public void actionPerformed(ActionEvent e) {
 		        txtFldid_Curso.setText("");
 		        txtFldNomeCursos.setText("");
-		        textFldid_Coordenador.setText("");
+		        comboBox.setToolTipText("");
 		        
 		    }
 		});
@@ -292,7 +302,7 @@ public class Cadastro_Cursos {
                     int row = table.getSelectedRow();
                     txtFldid_Curso.setText(table.getValueAt(row, 0).toString());
                     txtFldNomeCursos.setText(table.getValueAt(row, 1).toString());
-                    textFldid_Coordenador.setText(table.getValueAt(row, 2).toString());
+                    comboBox.setToolTipText(table.getValueAt(row, 2).toString());
                     
                 }
             }
@@ -309,6 +319,25 @@ public class Cadastro_Cursos {
         CadastroDeCursos.getContentPane().add(lblNewLabel_11_1);
         updateTable();
     }
+    private String obterIdCoordenador(String nomeCurso) {
+        try {
+            var myConn = Controle_EscolarConnection.ConnectDb();
+            if (myConn != null) {
+                String sql = "SELECT id_Coordenador FROM coordenacao WHERE nome_Coordenador = ?";
+                try (PreparedStatement pstmt = myConn.prepareStatement(sql)) {
+                    pstmt.setString(1, nomeCurso);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("id_Coordenador");
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(CadastroDeCursos, "Erro ao obter ID do curso: " + ex.getMessage());
+        }
+        return null;
+    }
     	
     private void updateTable() {
         conexao = Controle_EscolarConnection.ConnectDb();
@@ -321,11 +350,11 @@ public class Cadastro_Cursos {
                 model.setRowCount(0); // Limpar tabela antes de atualizar
 
                 while (myrs.next()) {
-                    String id_Curso = myrs.getString("id_Curso");
+                    String idCurso = myrs.getString("id_Curso");
                     String nome = myrs.getString("nome_Curso");
-                    String id_Coordenador = myrs.getString("id_Coordenador");
+                    String idCoordenador = myrs.getString("id_Coordenador");
                     
-                    model.addRow(new Object[]{id_Curso, nome, id_Coordenador});
+                    model.addRow(new Object[]{idCurso, nome, idCoordenador});
                 }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, ex);
