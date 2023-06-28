@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 27/06/2023 às 23:21
+-- Tempo de geração: 28/06/2023 às 23:52
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -61,6 +61,26 @@ CREATE TABLE `aluno_curso` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `aluno_turma`
+--
+
+CREATE TABLE `aluno_turma` (
+  `nr_Matricula` int(11) NOT NULL,
+  `id_Turma` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `aluno_turma`
+--
+
+INSERT INTO `aluno_turma` (`nr_Matricula`, `id_Turma`) VALUES
+(1, 1),
+(2, 1),
+(908, 1);
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `coordenacao`
 --
 
@@ -76,7 +96,9 @@ CREATE TABLE `coordenacao` (
 --
 
 INSERT INTO `coordenacao` (`id_Coordenador`, `nome_Coordenador`, `email_Coordenador`, `cel_Coordenador`) VALUES
-(1, 'Iran', 'iran@senai.com.br', '7199999999');
+(1, 'Iran', 'iran@senai.com.br', '7199999999'),
+(2, 'jorge', 'jorge@senai.com.br', '75999999999'),
+(3, 'celsãooo', 'celsaoa@senai.com.br', '73999999999');
 
 -- --------------------------------------------------------
 
@@ -85,12 +107,21 @@ INSERT INTO `coordenacao` (`id_Coordenador`, `nome_Coordenador`, `email_Coordena
 --
 
 CREATE TABLE `cronograma` (
+  `dt_Cronograma` date NOT NULL,
   `id_Professor` int(11) NOT NULL,
   `id_Disciplina` varchar(7) NOT NULL,
-  `dt_Cronograma` date NOT NULL,
   `hr_Inicio` varchar(5) NOT NULL,
   `hr_Fim` varchar(5) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `cronograma`
+--
+
+INSERT INTO `cronograma` (`dt_Cronograma`, `id_Professor`, `id_Disciplina`, `hr_Inicio`, `hr_Fim`) VALUES
+('2003-03-03', 1, '1', '15:00', '17:00'),
+('2003-03-04', 1, '1', '08:00', '08:00'),
+('2003-03-05', 1, '1', '10:00', '12:00');
 
 -- --------------------------------------------------------
 
@@ -110,7 +141,8 @@ CREATE TABLE `curso` (
 
 INSERT INTO `curso` (`id_Curso`, `nome_Curso`, `id_Coordenador`) VALUES
 ('1', 'Adm', 1),
-('2', 'Des', 1);
+('2', 'Des', 3),
+('3', 'ti', 2);
 
 -- --------------------------------------------------------
 
@@ -148,7 +180,8 @@ CREATE TABLE `disciplina_curso` (
 --
 
 INSERT INTO `disciplina_curso` (`id_Disciplina`, `id_Curso`) VALUES
-('1', '1');
+('1', '1'),
+('1', '2');
 
 -- --------------------------------------------------------
 
@@ -293,6 +326,13 @@ ALTER TABLE `aluno_curso`
   ADD KEY `fk_Curso5` (`id_Curso`);
 
 --
+-- Índices de tabela `aluno_turma`
+--
+ALTER TABLE `aluno_turma`
+  ADD KEY `fk_Aluno5` (`nr_Matricula`),
+  ADD KEY `fk_Turma` (`id_Turma`);
+
+--
 -- Índices de tabela `coordenacao`
 --
 ALTER TABLE `coordenacao`
@@ -399,6 +439,13 @@ ALTER TABLE `professor`
 ALTER TABLE `aluno_curso`
   ADD CONSTRAINT `fk_Aluno1` FOREIGN KEY (`nr_Matricula`) REFERENCES `alunos` (`nr_Matricula`),
   ADD CONSTRAINT `fk_Curso5` FOREIGN KEY (`id_Curso`) REFERENCES `curso` (`id_Curso`);
+
+--
+-- Restrições para tabelas `aluno_turma`
+--
+ALTER TABLE `aluno_turma`
+  ADD CONSTRAINT `fk_Aluno5` FOREIGN KEY (`nr_Matricula`) REFERENCES `alunos` (`nr_Matricula`),
+  ADD CONSTRAINT `fk_Turma` FOREIGN KEY (`id_Turma`) REFERENCES `turmas` (`id_Turma`);
 
 --
 -- Restrições para tabelas `cronograma`
