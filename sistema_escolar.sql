@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 28/06/2023 às 23:52
+-- Tempo de geração: 29/06/2023 às 23:30
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -43,7 +43,7 @@ INSERT INTO `alunos` (`nr_Matricula`, `nome_Aluno`, `cpf_Aluno`, `endereco_Aluno
 (2, 'Victore', '99999999957', 'rua 1'),
 (12, 'Victor G', '12345677899', ''),
 (123, 'eunice', '12336472662', 'rua 8'),
-(451, 'eraerra', '12345665432', 'dasdadas'),
+(451, 'eraerra', '12345665', 'dasdadas'),
 (908, 'roselmy', '12345678910', 'ruehuerhuerhur'),
 (1234, 'eustaqui', '12343532111', 'tchurubangos');
 
@@ -98,7 +98,7 @@ CREATE TABLE `coordenacao` (
 INSERT INTO `coordenacao` (`id_Coordenador`, `nome_Coordenador`, `email_Coordenador`, `cel_Coordenador`) VALUES
 (1, 'Iran', 'iran@senai.com.br', '7199999999'),
 (2, 'jorge', 'jorge@senai.com.br', '75999999999'),
-(3, 'celsãooo', 'celsaoa@senai.com.br', '73999999999');
+(3, 'celso', 'celsaoa@senai.com.br', '73999999999');
 
 -- --------------------------------------------------------
 
@@ -121,7 +121,8 @@ CREATE TABLE `cronograma` (
 INSERT INTO `cronograma` (`dt_Cronograma`, `id_Professor`, `id_Disciplina`, `hr_Inicio`, `hr_Fim`) VALUES
 ('2003-03-03', 1, '1', '15:00', '17:00'),
 ('2003-03-04', 1, '1', '08:00', '08:00'),
-('2003-03-05', 1, '1', '10:00', '12:00');
+('2003-03-05', 1, '1', '10:00', '12:00'),
+('2003-03-20', 2, '2', '10:00', '13:00');
 
 -- --------------------------------------------------------
 
@@ -142,7 +143,11 @@ CREATE TABLE `curso` (
 INSERT INTO `curso` (`id_Curso`, `nome_Curso`, `id_Coordenador`) VALUES
 ('1', 'Adm', 1),
 ('2', 'Des', 3),
-('3', 'ti', 2);
+('3', 'ti', 2),
+('4', 'Geografia', 3),
+('5', 'ciencia', 1),
+('6', 'Geologia', 3),
+('7', 'portugues', 2);
 
 -- --------------------------------------------------------
 
@@ -162,7 +167,9 @@ CREATE TABLE `disciplina` (
 --
 
 INSERT INTO `disciplina` (`id_Disciplina`, `nome_Disciplina`, `carga_Horaria`, `descricao_Disciplina`) VALUES
-('1', 'logica', 120, 'logica');
+('1', 'logica', 120, 'logica'),
+('2', 'web', 70, 'web'),
+('3', 'comunicação', 36, 'oral e escrita');
 
 -- --------------------------------------------------------
 
@@ -230,7 +237,12 @@ CREATE TABLE `notas` (
 --
 
 INSERT INTO `notas` (`id_Professor`, `id_Disciplina`, `id_Turma`, `nr_Matricula`, `data_Nota`, `nota_Disciplina`) VALUES
-(1, '1', 1, 1, '2023-02-02', 10);
+(3, '3', 2, 908, '1999-03-05', 7),
+(2, '2', 1, 2, '1999-03-06', 7),
+(2, '1', 1, 12, '2010-05-03', 6),
+(1, '1', 1, 123, '2020-03-03', 7),
+(1, '1', 1, 1, '2020-04-04', 8),
+(1, '1', 1, 12, '2023-02-02', 10);
 
 -- --------------------------------------------------------
 
@@ -250,7 +262,8 @@ CREATE TABLE `pagamentos` (
 --
 
 INSERT INTO `pagamentos` (`nr_Matricula`, `id_Curso`, `data_Pagamento`, `valor`) VALUES
-(1, 1, '1993-03-20', 500);
+(1, 1, '1993-03-20', 500),
+(2, 2, '2003-03-20', 600);
 
 -- --------------------------------------------------------
 
@@ -271,7 +284,11 @@ CREATE TABLE `professor` (
 --
 
 INSERT INTO `professor` (`id_Professor`, `nome_Professor`, `cpf_Professor`, `email_Professor`, `telefone_Professor`) VALUES
-(1, 'jorge', '11234566677', 'senai', '71999999999');
+(1, 'jorge', '11234566677', 'senai', '71999999999'),
+(2, 'celso', '32132132131', 'sesnai', '99999999'),
+(3, 'iran', '12312312', 'dasdadsa', '999999999'),
+(4, 'barbara', '1234341431', 'dasdadazx', '123131321'),
+(5, 'maria', '5646548', 'sdeawasad', '213131234');
 
 -- --------------------------------------------------------
 
@@ -305,7 +322,8 @@ CREATE TABLE `turmas` (
 --
 
 INSERT INTO `turmas` (`id_Turma`, `nr_Matricula`, `id_Curso`, `turno_Turma`, `data_Turma`) VALUES
-(1, 1, '1', 'matutino', '2003-02-28 00:00:00');
+(1, 1, '1', 'matutino', '2003-02-28 00:00:00'),
+(2, 2, '2', 'Vespertino', '2023-09-09 00:00:00');
 
 --
 -- Índices para tabelas despejadas
@@ -427,7 +445,7 @@ ALTER TABLE `turmas`
 -- AUTO_INCREMENT de tabela `professor`
 --
 ALTER TABLE `professor`
-  MODIFY `id_Professor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_Professor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Restrições para tabelas despejadas
