@@ -2,6 +2,9 @@ package controleEscolar;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
+
+import com.functions.util.Controle_EscolarConnection;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -73,11 +76,9 @@ public class Cadastro_Notas {
         comboBox_4.setFont(new Font("Arial", Font.PLAIN, 12));
         comboBox_4.setBounds(101, 203, 163, 31);
         frmCadastroDenotas.getContentPane().add(comboBox_4);
-
         try {
             conexao = Controle_EscolarConnection.ConnectDb();
             if (conexao != null) {
-                JOptionPane.showMessageDialog(frmCadastroDenotas, "Conexão com o banco de dados estabelecida com sucesso!");
                 String sql = "SELECT * FROM professor";
                 try (Statement stmt = conexao.createStatement();
                      ResultSet rs = stmt.executeQuery(sql)) {
@@ -115,22 +116,48 @@ public class Cadastro_Notas {
                     while (rs.next()) {
                         String nrMatricula = rs.getString("nome_Aluno");
                         comboBox_4.addItem(nrMatricula);
+                        
                     }
-                }
+                    updateTable();}
             } else {
                 JOptionPane.showMessageDialog(frmCadastroDenotas, "Não foi possível conectar ao banco de dados.");
             }
         } catch (Exception erro) {
             JOptionPane.showMessageDialog(frmCadastroDenotas, erro);
         }
-
+        
+        
         frmCadastroDenotas.setVisible(true);
-
 
         txtFldDataNota = new JTextField();
         txtFldDataNota.setBounds(101, 248, 163, 35);
         txtFldDataNota.setColumns(10);
         frmCadastroDenotas.getContentPane().add(txtFldDataNota);
+        
+        txtFldNota = new JTextField();
+        txtFldNota.setColumns(10);
+        txtFldNota.setBounds(101, 293, 163, 35);
+        frmCadastroDenotas.getContentPane().add(txtFldNota);
+        
+        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de notas");
+        lblNewLabel_11_1.setToolTipText("");
+        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel_11_1.setForeground(SystemColor.infoText);
+        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
+        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
+        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
+        frmCadastroDenotas.getContentPane().add(lblNewLabel_11_1);
+        
+        JLabel lblTurma = new JLabel("Nrº nota:");
+        lblTurma.setLabelFor(txtFldNota);
+        lblTurma.setFont(new Font("Arial", Font.BOLD, 13));
+        lblTurma.setBounds(42, 295, 54, 31);
+        frmCadastroDenotas.getContentPane().add(lblTurma);
+        
+        JLabel lblNewLabel_3_1 = new JLabel("Nrº Matricula:");
+        lblNewLabel_3_1.setFont(new Font("Arial", Font.BOLD, 13));
+        lblNewLabel_3_1.setBounds(11, 205, 89, 31);
+        frmCadastroDenotas.getContentPane().add(lblNewLabel_3_1);
 
         JLabel lblNewLabel = new JLabel("ID Professor:");
         lblNewLabel.setForeground(SystemColor.infoText);
@@ -152,6 +179,36 @@ public class Cadastro_Notas {
         lblNewLabel_3.setBounds(31, 250, 68, 31);
         lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 13));
         frmCadastroDenotas.getContentPane().add(lblNewLabel_3);
+        
+
+        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
+    	lblNewLabel_11.setForeground(SystemColor.infoText);
+    	lblNewLabel_11.setToolTipText("");
+    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
+    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
+    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    	lblNewLabel_11.setBounds(10, 411, 765, 42);
+    	frmCadastroDenotas.getContentPane().add(lblNewLabel_11);
+    	
+    	JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(274, 67, 402, 342);
+        frmCadastroDenotas.getContentPane().add(scrollPane);
+
+        table = new JTable(model);
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (table.getSelectedRow() != -1) {
+                    int row = table.getSelectedRow();
+                    comboBox_1.setToolTipText(table.getValueAt(row, 0).toString());
+    	            comboBox_2.setToolTipText(table.getValueAt(row, 1).toString());
+    	            comboBox_3.setToolTipText(table.getValueAt(row, 2).toString());
+    	            comboBox_4.setToolTipText(table.getValueAt(row, 3).toString());
+    	            txtFldDataNota.setText(table.getValueAt(row, 4).toString());
+                    txtFldNota.setText(table.getValueAt(row, 5).toString());
+                }
+            }
+        });
+        scrollPane.setViewportView(table);
 
         JButton btnInserir = new JButton("Salvar");
         btnInserir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -203,18 +260,18 @@ public class Cadastro_Notas {
         btnAlterar.setBackground(new Color(255, 255, 255));
         btnAlterar.setBounds(686, 115, 89, 35);
         btnAlterar.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 conexao = Controle_EscolarConnection.ConnectDb();
                 String idProfessor = obterIdProfessor((String) comboBox_1.getSelectedItem());
-        	    String idDisciplina = obterIdDisciplina((String) comboBox_2.getSelectedItem());
-        	    String idTurma = obterIdTurma((String) comboBox_3.getSelectedItem());
-        	    String nrMatricula = obterNomeAluno((String) comboBox_4.getSelectedItem());
-        	    String data = txtFldDataNota.getText();
-        	    String nota = txtFldNota.getText();
+                String idDisciplina = obterIdDisciplina((String) comboBox_2.getSelectedItem());
+                String idTurma = obterIdTurma((String) comboBox_3.getSelectedItem());
+                String nrMatricula = obterNomeAluno((String) comboBox_4.getSelectedItem());
+                String data = txtFldDataNota.getText();
+                String nota = txtFldNota.getText();
                 if (conexao != null) {
                     int row = table.getSelectedRow();
                     if (row != -1) {
-                        String sql = "UPDATE notas SET id_Professor=?, id_Disciplina=?, id_Turma=?, nr_Matricula=?, nota_Disciplina=?WHERE data_Nota=?";
+                        String sql = "UPDATE notas SET id_Professor=?, id_Disciplina=?, id_Turma=?, nr_Matricula=?, nota_Disciplina=? WHERE data_Nota=?";
                         try {
                             mypst = conexao.prepareStatement(sql);
                             mypst.setString(1, idProfessor);
@@ -227,18 +284,21 @@ public class Cadastro_Notas {
                             JOptionPane.showMessageDialog(null, "Dados alterados com sucesso!");
                             updateTable();
                             comboBox_1.setToolTipText("");
-            	            comboBox_2.setToolTipText("");
-            	            comboBox_3.setToolTipText("");
-            	            comboBox_4.setToolTipText("");
-            	            txtFldDataNota.setText("");
-            	            txtFldNota.setText("");
+                            comboBox_2.setToolTipText("");
+                            comboBox_3.setToolTipText("");
+                            comboBox_4.setToolTipText("");
+                            txtFldDataNota.setText("");
+                            txtFldNota.setText("");
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(null, ex);
                         } finally {
                             try {
-                                myrs.close();
-                                mypst.close();
-                                conexao.close();
+                                if (mypst != null) {
+                                    mypst.close();
+                                }
+                                if (conexao != null) {
+                                    conexao.close();
+                                }
                             } catch (Exception ex) {
                                 JOptionPane.showMessageDialog(null, ex);
                             }
@@ -249,6 +309,7 @@ public class Cadastro_Notas {
                 }
             }
         });
+
         frmCadastroDenotas.getContentPane().add(btnAlterar);
         JButton btnExcluir = new JButton("Excluir");
         btnExcluir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -261,7 +322,7 @@ public class Cadastro_Notas {
                     int row = table.getSelectedRow();
                     if (row != -1) {
                     	String data = table.getValueAt(row, 5).toString();
-                    	String sql = "DELETE FROM notas WHERE data_Nota=?";
+                    	String sql = "DELETE FROM notas WHERE id_Professor=?, id_Disciplina=?, id_Turma=?, nr_Matricula=?, data_Nota=?, nota_Disciplina=?";
                     	try {
                     	    mypst = conexao.prepareStatement(sql);
                     	    mypst.setString(1, data);
@@ -371,63 +432,26 @@ public class Cadastro_Notas {
             }
         });
 
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(274, 67, 402, 342);
-        frmCadastroDenotas.getContentPane().add(scrollPane);
-        
-        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
-    	lblNewLabel_11.setForeground(SystemColor.infoText);
-    	lblNewLabel_11.setToolTipText("");
-    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
-    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
-    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
-    	lblNewLabel_11.setBounds(10, 411, 765, 42);
-    	frmCadastroDenotas.getContentPane().add(lblNewLabel_11);
-
-        table = new JTable(model);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (table.getSelectedRow() != -1) {
-                    int row = table.getSelectedRow();
-                    comboBox_1.setToolTipText(table.getValueAt(row, 0).toString());
-    	            comboBox_2.setToolTipText(table.getValueAt(row, 1).toString());
-    	            comboBox_3.setToolTipText(table.getValueAt(row, 2).toString());
-    	            comboBox_4.setToolTipText(table.getValueAt(row, 3).toString());
-    	            txtFldDataNota.setText(table.getValueAt(row, 4).toString());
-                    txtFldNota.setText(table.getValueAt(row, 5).toString());
-                }
+    	JButton btnFechar = new JButton("Fechar");
+        btnFechar.setFont(new Font("Arial", Font.BOLD, 12));
+        btnFechar.setBackground(new Color(255, 255, 255));
+        btnFechar.setBounds(686, 338, 89, 35);
+        btnFechar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                fecharPrograma(e);
             }
         });
-        scrollPane.setViewportView(table);
-        
-        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de notas");
-        lblNewLabel_11_1.setToolTipText("");
-        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_11_1.setForeground(SystemColor.infoText);
-        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
-        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
-        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
-        frmCadastroDenotas.getContentPane().add(lblNewLabel_11_1);
-        
-        txtFldNota = new JTextField();
-        txtFldNota.setColumns(10);
-        txtFldNota.setBounds(101, 293, 163, 35);
-        frmCadastroDenotas.getContentPane().add(txtFldNota);
-        
-        JLabel lblTurma = new JLabel("Nrº nota:");
-        lblTurma.setLabelFor(txtFldNota);
-        lblTurma.setFont(new Font("Arial", Font.BOLD, 13));
-        lblTurma.setBounds(42, 295, 54, 31);
-        frmCadastroDenotas.getContentPane().add(lblTurma);
-        
-        JLabel lblNewLabel_3_1 = new JLabel("Nrº Matricula:");
-        lblNewLabel_3_1.setFont(new Font("Arial", Font.BOLD, 13));
-        lblNewLabel_3_1.setBounds(11, 205, 89, 31);
-        frmCadastroDenotas.getContentPane().add(lblNewLabel_3_1);
-        
-        
+        frmCadastroDenotas.getContentPane().add(btnFechar);  
         updateTable();
     }
+    
+    public void fecharPrograma(ActionEvent e) {
+        int confirmacao = JOptionPane.showConfirmDialog(frmCadastroDenotas, "Deseja realmente fechar o programa?", "Confirmação", JOptionPane.YES_NO_OPTION);
+        if (confirmacao == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
+
     private String obterIdProfessor(String nomeProfessor) {
         try {
             var myConn = Controle_EscolarConnection.ConnectDb();
@@ -504,7 +528,7 @@ public class Cadastro_Notas {
             JOptionPane.showMessageDialog(frmCadastroDenotas, "Erro ao obter o Nrº de Matricula do(a) aluno(a): " + ex.getMessage());
         }
         return null;
-    }	
+    }
     private void updateTable() {
         conexao = Controle_EscolarConnection.ConnectDb();
         if (conexao != null) {
@@ -538,3 +562,4 @@ public class Cadastro_Notas {
         }
     }
  }
+    

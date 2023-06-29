@@ -2,6 +2,9 @@ package controleEscolar;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
+
+import com.functions.util.Controle_EscolarConnection;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -75,6 +78,17 @@ public class Cadastro_Turmas {
         txtFldIdturno_Turma.setBounds(101, 203, 163, 35);
         txtFldIdturno_Turma.setColumns(10);
         frmCadastroDeTurmas.getContentPane().add(txtFldIdturno_Turma);
+        
+        txtFldMatricula = new JTextField();
+        txtFldMatricula.setColumns(10);
+        txtFldMatricula.setBounds(101, 248, 163, 35);
+        frmCadastroDeTurmas.getContentPane().add(txtFldMatricula);
+        
+        JLabel lblTurma = new JLabel("Nrº Matricula:");
+        lblTurma.setLabelFor(txtFldMatricula);
+        lblTurma.setFont(new Font("Arial", Font.BOLD, 13));
+        lblTurma.setBounds(10, 250, 89, 31);
+        frmCadastroDeTurmas.getContentPane().add(lblTurma);
 
         JLabel lblNewLabel = new JLabel("ID Turma:");
         lblNewLabel.setForeground(SystemColor.infoText);
@@ -96,6 +110,43 @@ public class Cadastro_Turmas {
         lblNewLabel_3.setBounds(54, 205, 42, 31);
         lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 13));
         frmCadastroDeTurmas.getContentPane().add(lblNewLabel_3);
+        
+        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Turmas");
+        lblNewLabel_11_1.setToolTipText("");
+        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel_11_1.setForeground(SystemColor.infoText);
+        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
+        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
+        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
+        frmCadastroDeTurmas.getContentPane().add(lblNewLabel_11_1);
+        
+        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
+    	lblNewLabel_11.setForeground(SystemColor.infoText);
+    	lblNewLabel_11.setToolTipText("");
+    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
+    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
+    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    	lblNewLabel_11.setBounds(10, 411, 765, 42);
+    	frmCadastroDeTurmas.getContentPane().add(lblNewLabel_11);
+
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(274, 67, 402, 342);
+        frmCadastroDeTurmas.getContentPane().add(scrollPane);
+        
+        table = new JTable(model);
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (table.getSelectedRow() != -1) {
+                    int row = table.getSelectedRow();
+                    txtFldIDTurma.setText(table.getValueAt(row, 0).toString());
+                    txtFldIdCurso.setText(table.getValueAt(row, 1).toString());
+                    textFldIdData.setText(table.getValueAt(row, 2).toString());
+                    txtFldIdturno_Turma.setText(table.getValueAt(row, 3).toString());
+                    txtFldMatricula.setText(table.getValueAt(row, 4).toString());
+                }
+            }
+        });
+        scrollPane.setViewportView(table);
 
         JButton btnInserir = new JButton("Salvar");
         btnInserir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -297,54 +348,43 @@ public class Cadastro_Turmas {
             }
         });
 
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(274, 67, 402, 342);
-        frmCadastroDeTurmas.getContentPane().add(scrollPane);
-        
-        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
-    	lblNewLabel_11.setForeground(SystemColor.infoText);
-    	lblNewLabel_11.setToolTipText("");
-    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
-    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
-    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
-    	lblNewLabel_11.setBounds(10, 411, 765, 42);
-    	frmCadastroDeTurmas.getContentPane().add(lblNewLabel_11);
-
-        table = new JTable(model);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (table.getSelectedRow() != -1) {
-                    int row = table.getSelectedRow();
-                    txtFldIDTurma.setText(table.getValueAt(row, 0).toString());
-                    txtFldIdCurso.setText(table.getValueAt(row, 1).toString());
-                    textFldIdData.setText(table.getValueAt(row, 2).toString());
-                    txtFldIdturno_Turma.setText(table.getValueAt(row, 3).toString());
-                    txtFldMatricula.setText(table.getValueAt(row, 4).toString());
+        JButton btnFechar = new JButton("Fechar");
+	    btnFechar.setFont(new Font("Arial", Font.BOLD, 12));
+	    btnFechar.setBackground(new Color(255, 255, 255));
+	    btnFechar.setBounds(686, 338, 89, 35);
+	    btnFechar.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	            fecharPrograma(e);
+	        }
+	    });
+	    frmCadastroDeTurmas.getContentPane().add(btnFechar);  
+	    updateTable();
+	}
+	
+	public void fecharPrograma(ActionEvent e) {
+	    int confirmacao = JOptionPane.showConfirmDialog(frmCadastroDeTurmas, "Deseja realmente fechar o programa?", "Confirmação", JOptionPane.YES_NO_OPTION);
+	    if (confirmacao == JOptionPane.YES_OPTION) {
+	        System.exit(0);
+	    }
+	}
+	private String obterNomeAluno(String nrMatricula) {
+        try {
+            var myConn = Controle_EscolarConnection.ConnectDb();
+            if (myConn != null) {
+                String sql = "SELECT nr_Matricula FROM alunos WHERE nome_Aluno = ?";
+                try (PreparedStatement pstmt = myConn.prepareStatement(sql)) {
+                    pstmt.setString(1, nrMatricula);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("nr_Matricula");
+                        }
+                    }
                 }
             }
-        });
-        scrollPane.setViewportView(table);
-        
-        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Turmas");
-        lblNewLabel_11_1.setToolTipText("");
-        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_11_1.setForeground(SystemColor.infoText);
-        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
-        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
-        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
-        frmCadastroDeTurmas.getContentPane().add(lblNewLabel_11_1);
-        
-        txtFldMatricula = new JTextField();
-        txtFldMatricula.setColumns(10);
-        txtFldMatricula.setBounds(101, 248, 163, 35);
-        frmCadastroDeTurmas.getContentPane().add(txtFldMatricula);
-        
-        JLabel lblTurma = new JLabel("Nrº Matricula:");
-        lblTurma.setLabelFor(txtFldMatricula);
-        lblTurma.setFont(new Font("Arial", Font.BOLD, 13));
-        lblTurma.setBounds(10, 250, 89, 31);
-        frmCadastroDeTurmas.getContentPane().add(lblTurma);
-        updateTable();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(frmCadastroDeTurmas, "Erro ao obter o Nrº de Matricula do(a) aluno(a): " + ex.getMessage());
+        }
+        return null;
     }
     	
     private void updateTable() {

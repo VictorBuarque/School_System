@@ -2,6 +2,9 @@ package controleEscolar;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
+
+import com.functions.util.Controle_EscolarConnection;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -13,7 +16,7 @@ public class Cadastro_Cronogramas {
     
     private JTextField txtFldHoraInicio;
     private JTable table;
-    private JComboBox<String> comboBox;
+   
     private DefaultTableModel model;
     private Connection conexao;
     private PreparedStatement mypst;
@@ -65,22 +68,7 @@ public class Cadastro_Cronogramas {
         comboBox.setFont(new Font("Arial", Font.PLAIN, 12));
         comboBox.setBounds(101, 114, 163, 31);
         frmCadastroDeCronogramas.getContentPane().add(comboBox);
-        try {
-            conexao = Controle_EscolarConnection.ConnectDb();
-            if (conexao != null) {
-                String sql = "SELECT * FROM professor";
-                try (Statement stmt = conexao.createStatement();
-                     ResultSet rs = stmt.executeQuery(sql)) {
-                    while (rs.next()) {
-                        String idCoordenador = rs.getString("nome_Professor");
-                        comboBox.addItem("");
-                        comboBox.addItem(idCoordenador);
-                    }
-                }
-            }
-        } catch (Exception erro) {
-            JOptionPane.showMessageDialog(frmCadastroDeCronogramas, erro);
-        }
+        
         JComboBox<String> comboBox_1 = new JComboBox<String>();
         comboBox_1.setFont(new Font("Arial", Font.PLAIN, 12));
         comboBox_1.setBounds(101, 155, 163, 31);
@@ -88,19 +76,32 @@ public class Cadastro_Cronogramas {
         try {
             conexao = Controle_EscolarConnection.ConnectDb();
             if (conexao != null) {
-                String sql = "SELECT * FROM disciplina";
+                String sql = "SELECT * FROM professor";
                 try (Statement stmt = conexao.createStatement();
                      ResultSet rs = stmt.executeQuery(sql)) {
+                    comboBox.addItem("");
+                    while (rs.next()) {
+                        String idProfessor = rs.getString("nome_Professor");
+                        comboBox.addItem(idProfessor);
+                    }
+                }
+
+                sql = "SELECT * FROM disciplina";
+                try (Statement stmt = conexao.createStatement();
+                     ResultSet rs = stmt.executeQuery(sql)) {
+                    comboBox_1.addItem("");
                     while (rs.next()) {
                         String idDisciplina = rs.getString("nome_Disciplina");
-                        comboBox_1.addItem("");
                         comboBox_1.addItem(idDisciplina);
                     }
                 }
-            }
-        } catch (Exception erro) {
-            JOptionPane.showMessageDialog(frmCadastroDeCronogramas, erro);
+                updateTable();
+        } else {
+            JOptionPane.showMessageDialog(frmCadastroDeCronogramas, "Não foi possível conectar ao banco de dados.");
         }
+    } catch (Exception erro) {
+        JOptionPane.showMessageDialog(frmCadastroDeCronogramas, erro);
+    }
 
         frmCadastroDeCronogramas.setVisible(true);
 
@@ -108,6 +109,11 @@ public class Cadastro_Cronogramas {
         txtFldHoraInicio.setBounds(101, 203, 163, 35);
         txtFldHoraInicio.setColumns(10);
         frmCadastroDeCronogramas.getContentPane().add(txtFldHoraInicio);
+        
+        txtFldHoraFim = new JTextField();
+        txtFldHoraFim.setColumns(10);
+        txtFldHoraFim.setBounds(101, 248, 163, 35);
+        frmCadastroDeCronogramas.getContentPane().add(txtFldHoraFim);
 
         JLabel lblNewLabel = new JLabel("Data/Hora:");
         lblNewLabel.setForeground(SystemColor.infoText);
@@ -129,6 +135,51 @@ public class Cadastro_Cronogramas {
         lblNewLabel_3.setBounds(23, 205, 75, 31);
         lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 13));
         frmCadastroDeCronogramas.getContentPane().add(lblNewLabel_3);
+        
+        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Cronogramas");
+        lblNewLabel_11_1.setToolTipText("");
+        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel_11_1.setForeground(SystemColor.infoText);
+        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
+        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
+        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
+        frmCadastroDeCronogramas.getContentPane().add(lblNewLabel_11_1);
+        
+        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
+    	lblNewLabel_11.setForeground(SystemColor.infoText);
+    	lblNewLabel_11.setToolTipText("");
+    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
+    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
+    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    	lblNewLabel_11.setBounds(10, 411, 765, 42);
+    	frmCadastroDeCronogramas.getContentPane().add(lblNewLabel_11);
+    	
+    	JLabel lblTurma = new JLabel("Hora Fim:");
+        lblTurma.setLabelFor(txtFldHoraFim);
+        lblTurma.setFont(new Font("Arial", Font.BOLD, 13));
+        lblTurma.setBounds(34, 250, 64, 31);
+        frmCadastroDeCronogramas.getContentPane().add(lblTurma);
+        
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(274, 67, 402, 342);
+        frmCadastroDeCronogramas.getContentPane().add(scrollPane);
+
+        table = new JTable(model);
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (table.getSelectedRow() != -1) {
+                    int row = table.getSelectedRow();
+                    txtFldData.setText(table.getValueAt(row, 0).toString());
+                    comboBox.setToolTipText(table.getValueAt(row, 1).toString());
+                    comboBox_1.setToolTipText(table.getValueAt(row, 2).toString());
+                    txtFldHoraInicio.setText(table.getValueAt(row, 3).toString());
+                    txtFldHoraFim.setText(table.getValueAt(row, 4).toString());
+                }
+            }
+        });
+        scrollPane.setViewportView(table);
+        
+        updateTable();
 
         JButton btnInserir = new JButton("Salvar");
         btnInserir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -338,58 +389,27 @@ public class Cadastro_Cronogramas {
                 }
             }
         });
-
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(274, 67, 402, 342);
-        frmCadastroDeCronogramas.getContentPane().add(scrollPane);
         
-        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
-    	lblNewLabel_11.setForeground(SystemColor.infoText);
-    	lblNewLabel_11.setToolTipText("");
-    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
-    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
-    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
-    	lblNewLabel_11.setBounds(10, 411, 765, 42);
-    	frmCadastroDeCronogramas.getContentPane().add(lblNewLabel_11);
-
-        table = new JTable(model);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (table.getSelectedRow() != -1) {
-                    int row = table.getSelectedRow();
-                    txtFldData.setText(table.getValueAt(row, 0).toString());
-                    comboBox.setToolTipText(table.getValueAt(row, 1).toString());
-                    comboBox_1.setToolTipText(table.getValueAt(row, 2).toString());
-                    txtFldHoraInicio.setText(table.getValueAt(row, 3).toString());
-                    txtFldHoraFim.setText(table.getValueAt(row, 4).toString());
-                }
+        JButton btnFechar = new JButton("Fechar");
+        btnFechar.setFont(new Font("Arial", Font.BOLD, 12));
+        btnFechar.setBackground(new Color(255, 255, 255));
+        btnFechar.setBounds(686, 338, 89, 35);
+        btnFechar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                fecharPrograma(e);
             }
         });
-        scrollPane.setViewportView(table);
+        frmCadastroDeCronogramas.getContentPane().add(btnFechar);  
         
-        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Cronogramas");
-        lblNewLabel_11_1.setToolTipText("");
-        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_11_1.setForeground(SystemColor.infoText);
-        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
-        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
-        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
-        frmCadastroDeCronogramas.getContentPane().add(lblNewLabel_11_1);
-        
-        txtFldHoraFim = new JTextField();
-        txtFldHoraFim.setColumns(10);
-        txtFldHoraFim.setBounds(101, 248, 163, 35);
-        frmCadastroDeCronogramas.getContentPane().add(txtFldHoraFim);
-        
-        JLabel lblTurma = new JLabel("Hora Fim:");
-        lblTurma.setLabelFor(txtFldHoraFim);
-        lblTurma.setFont(new Font("Arial", Font.BOLD, 13));
-        lblTurma.setBounds(34, 250, 64, 31);
-        frmCadastroDeCronogramas.getContentPane().add(lblTurma);
-        
-        
-        updateTable();
     }
+    
+    public void fecharPrograma(ActionEvent e) {
+        int confirmacao = JOptionPane.showConfirmDialog(frmCadastroDeCronogramas, "Deseja realmente fechar o programa?", "Confirmação", JOptionPane.YES_NO_OPTION);
+        if (confirmacao == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
+    
     private String obterIdProfessor(String nomeCurso) {
         try {
             var myConn = Controle_EscolarConnection.ConnectDb();

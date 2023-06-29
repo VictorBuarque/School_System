@@ -2,6 +2,9 @@ package controleEscolar;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
+
+import com.functions.util.Controle_EscolarConnection;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -69,6 +72,11 @@ public class Cadastro_Disciplinas {
         textFldCurso.setBounds(101, 158, 163, 35);
         textFldCurso.setColumns(10);
         CadadastroDeDisciplinas.getContentPane().add(textFldCurso);
+        
+        textFieldDescricao = new JTextField();
+        textFieldDescricao.setColumns(10);
+        textFieldDescricao.setBounds(101, 203, 163, 35);
+        CadadastroDeDisciplinas.getContentPane().add(textFieldDescricao);
 
         JLabel lblNewLabel = new JLabel("ID Disciplina:");
         lblNewLabel.setForeground(SystemColor.infoText);
@@ -85,6 +93,47 @@ public class Cadastro_Disciplinas {
         lblNewLabel_2.setBounds(19, 160, 81, 31);
         lblNewLabel_2.setFont(new Font("Arial", Font.BOLD, 13));
         CadadastroDeDisciplinas.getContentPane().add(lblNewLabel_2);
+        
+        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Disciplinas");
+        lblNewLabel_11_1.setToolTipText("");
+        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel_11_1.setForeground(SystemColor.infoText);
+        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
+        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
+        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
+        CadadastroDeDisciplinas.getContentPane().add(lblNewLabel_11_1);
+        
+        JLabel lblNewLabel_2_1 = new JLabel("Descrição:");
+        lblNewLabel_2_1.setFont(new Font("Arial", Font.BOLD, 13));
+        lblNewLabel_2_1.setBounds(29, 205, 71, 31);
+        CadadastroDeDisciplinas.getContentPane().add(lblNewLabel_2_1);
+        
+        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
+    	lblNewLabel_11.setForeground(SystemColor.infoText);
+    	lblNewLabel_11.setToolTipText("");
+    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
+    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
+    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    	lblNewLabel_11.setBounds(10, 411, 765, 42);
+    	CadadastroDeDisciplinas.getContentPane().add(lblNewLabel_11);
+    	
+    	JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(274, 67, 402, 342);
+        CadadastroDeDisciplinas.getContentPane().add(scrollPane);
+
+        table = new JTable(model);
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (table.getSelectedRow() != -1) {
+                    int row = table.getSelectedRow();
+                    txtFldDIsciplina.setText(table.getValueAt(row, 0).toString());
+                    txtFldNomeDisciplinas.setText(table.getValueAt(row, 1).toString());
+                    textFldCurso.setText(table.getValueAt(row, 2).toString());
+                    textFieldDescricao.setText(table.getValueAt(row, 3).toString());
+                }
+            }
+        });
+        scrollPane.setViewportView(table);
 
         JButton btnInserir = new JButton("Salvar");
         btnInserir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -282,54 +331,27 @@ public class Cadastro_Disciplinas {
                 }
             }
         });
-
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(274, 67, 402, 342);
-        CadadastroDeDisciplinas.getContentPane().add(scrollPane);
         
-        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
-    	lblNewLabel_11.setForeground(SystemColor.infoText);
-    	lblNewLabel_11.setToolTipText("");
-    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
-    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
-    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
-    	lblNewLabel_11.setBounds(10, 411, 765, 42);
-    	CadadastroDeDisciplinas.getContentPane().add(lblNewLabel_11);
-
-        table = new JTable(model);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (table.getSelectedRow() != -1) {
-                    int row = table.getSelectedRow();
-                    txtFldDIsciplina.setText(table.getValueAt(row, 0).toString());
-                    txtFldNomeDisciplinas.setText(table.getValueAt(row, 1).toString());
-                    textFldCurso.setText(table.getValueAt(row, 2).toString());
-                    textFieldDescricao.setText(table.getValueAt(row, 3).toString());
-                }
-            }
-        });
-        scrollPane.setViewportView(table);
-        
-        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Disciplinas");
-        lblNewLabel_11_1.setToolTipText("");
-        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_11_1.setForeground(SystemColor.infoText);
-        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
-        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
-        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
-        CadadastroDeDisciplinas.getContentPane().add(lblNewLabel_11_1);
-        
-        JLabel lblNewLabel_2_1 = new JLabel("Descrição:");
-        lblNewLabel_2_1.setFont(new Font("Arial", Font.BOLD, 13));
-        lblNewLabel_2_1.setBounds(29, 205, 71, 31);
-        CadadastroDeDisciplinas.getContentPane().add(lblNewLabel_2_1);
-        
-        textFieldDescricao = new JTextField();
-        textFieldDescricao.setColumns(10);
-        textFieldDescricao.setBounds(101, 203, 163, 35);
-        CadadastroDeDisciplinas.getContentPane().add(textFieldDescricao);
-        updateTable();
-    }
+        JButton btnFechar = new JButton("Fechar");
+	    btnFechar.setFont(new Font("Arial", Font.BOLD, 12));
+	    btnFechar.setBackground(new Color(255, 255, 255));
+	    btnFechar.setBounds(686, 338, 89, 35);
+	    btnFechar.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	            fecharPrograma(e);
+	        }
+	    });
+	    CadadastroDeDisciplinas.getContentPane().add(btnFechar);  
+	    updateTable();
+	}
+	
+	public void fecharPrograma(ActionEvent e) {
+	    int confirmacao = JOptionPane.showConfirmDialog(CadadastroDeDisciplinas, "Deseja realmente fechar o programa?", "Confirmação", JOptionPane.YES_NO_OPTION);
+	    if (confirmacao == JOptionPane.YES_OPTION) {
+	        System.exit(0);
+	    }
+	}
+    
     	
     private void updateTable() {
         conexao = Controle_EscolarConnection.ConnectDb();

@@ -2,9 +2,13 @@ package controleEscolar;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
+
+import com.functions.util.Controle_EscolarConnection;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 
 public class Cadadastro_Pagamentos {
 
@@ -46,13 +50,31 @@ public class Cadadastro_Pagamentos {
         CadadastroDePagamentos.setBounds(100, 100, 800, 500);
         CadadastroDePagamentos.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         CadadastroDePagamentos.getContentPane().setLayout(null);
-
+        
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(274, 67, 402, 342);
+        CadadastroDePagamentos.getContentPane().add(scrollPane);
+        
         model = new DefaultTableModel();
         model.addColumn("Nr. Matrícula");
         model.addColumn("ID Curso");
         model.addColumn("Data Vencimento");
         model.addColumn("Valor R$");
-
+        
+        table = new JTable(model);
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (table.getSelectedRow() != -1) {
+                    int row = table.getSelectedRow();
+                    txtFldMatricula.setText(table.getValueAt(row, 0).toString());
+                    txtFldNomePagamentos.setText(table.getValueAt(row, 1).toString());
+                    textFldCpf.setText(table.getValueAt(row, 2).toString());
+                    txtFldEndereco.setText(table.getValueAt(row, 3).toString());
+                }
+            }
+        });
+        scrollPane.setViewportView(table);
+        
         txtFldMatricula = new JTextField();
         txtFldMatricula.setBounds(101, 69, 163, 35);
         txtFldMatricula.setColumns(10);
@@ -93,6 +115,26 @@ public class Cadadastro_Pagamentos {
         lblNewLabel_3.setBounds(29, 213, 70, 14);
         lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 13));
         CadadastroDePagamentos.getContentPane().add(lblNewLabel_3);
+        
+        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Pagamentos");
+        lblNewLabel_11_1.setToolTipText("");
+        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel_11_1.setForeground(SystemColor.infoText);
+        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
+        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
+        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
+        CadadastroDePagamentos.getContentPane().add(lblNewLabel_11_1);
+        
+        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
+    	lblNewLabel_11.setForeground(SystemColor.infoText);
+    	lblNewLabel_11.setToolTipText("");
+    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
+    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
+    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    	lblNewLabel_11.setBounds(10, 411, 765, 42);
+    	CadadastroDePagamentos.getContentPane().add(lblNewLabel_11);
+    	
+    	
 
         JButton btnInserir = new JButton("Salvar");
         btnInserir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -286,45 +328,27 @@ public class Cadadastro_Pagamentos {
                 }
             }
         });
-
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(274, 67, 402, 342);
-        CadadastroDePagamentos.getContentPane().add(scrollPane);
         
-        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
-    	lblNewLabel_11.setForeground(SystemColor.infoText);
-    	lblNewLabel_11.setToolTipText("");
-    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
-    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
-    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
-    	lblNewLabel_11.setBounds(10, 411, 765, 42);
-    	CadadastroDePagamentos.getContentPane().add(lblNewLabel_11);
+	    JButton btnFechar = new JButton("Fechar");
+	    btnFechar.setFont(new Font("Arial", Font.BOLD, 12));
+	    btnFechar.setBackground(new Color(255, 255, 255));
+	    btnFechar.setBounds(686, 338, 89, 35);
+	    btnFechar.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	            fecharPrograma(e);
+	        }
+	    });
+	    CadadastroDePagamentos.getContentPane().add(btnFechar);  
+	    updateTable();
+	}
 
-        table = new JTable(model);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (table.getSelectedRow() != -1) {
-                    int row = table.getSelectedRow();
-                    txtFldMatricula.setText(table.getValueAt(row, 0).toString());
-                    txtFldNomePagamentos.setText(table.getValueAt(row, 1).toString());
-                    textFldCpf.setText(table.getValueAt(row, 2).toString());
-                    txtFldEndereco.setText(table.getValueAt(row, 3).toString());
-                }
-            }
-        });
-        scrollPane.setViewportView(table);
-        
-        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Pagamentos");
-        lblNewLabel_11_1.setToolTipText("");
-        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_11_1.setForeground(SystemColor.infoText);
-        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
-        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
-        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
-        CadadastroDePagamentos.getContentPane().add(lblNewLabel_11_1);
-        updateTable();
-    }
-    	
+	public void fecharPrograma(ActionEvent e) {
+	    int confirmacao = JOptionPane.showConfirmDialog(CadadastroDePagamentos, "Deseja realmente fechar o programa?", "Confirmação", JOptionPane.YES_NO_OPTION);
+	    if (confirmacao == JOptionPane.YES_OPTION) {
+	        System.exit(0);
+	    }
+	}
+    
     private void updateTable() {
         conexao = Controle_EscolarConnection.ConnectDb();
         if (conexao != null) {
@@ -338,9 +362,14 @@ public class Cadadastro_Pagamentos {
                 while (myrs.next()) {
                     String matricula = myrs.getString("nr_Matricula");
                     String nome = myrs.getString("id_Curso");
-                    String cpf = myrs.getString("data_Pagamento");
-                    String endereco = myrs.getString("valor");
-                    model.addRow(new Object[]{matricula, nome, cpf, endereco});
+                    Date dataPagamento = myrs.getDate("data_Pagamento");
+                    String valor = myrs.getString("valor");
+
+                    // Formatar a data
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    String dataPagamentoFormatada = dateFormat.format(dataPagamento);
+
+                    model.addRow(new Object[]{matricula, nome, dataPagamentoFormatada, valor});
                 }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, ex);
@@ -355,4 +384,4 @@ public class Cadadastro_Pagamentos {
             }
         }
     }
- }
+}

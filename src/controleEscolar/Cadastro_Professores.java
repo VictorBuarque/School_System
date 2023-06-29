@@ -2,6 +2,9 @@ package controleEscolar;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
+
+import com.functions.util.Controle_EscolarConnection;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -74,6 +77,11 @@ public class Cadastro_Professores {
         txtFldEndereco.setBounds(101, 203, 163, 35);
         txtFldEndereco.setColumns(10);
         frmCadastroDeProfessores.getContentPane().add(txtFldEndereco);
+        
+        txtFldTelefone = new JTextField();
+        txtFldTelefone.setColumns(10);
+        txtFldTelefone.setBounds(101, 248, 163, 35);
+        frmCadastroDeProfessores.getContentPane().add(txtFldTelefone);
 
         JLabel lblNewLabel = new JLabel("Nrº Matrícula:");
         lblNewLabel.setForeground(SystemColor.infoText);
@@ -95,6 +103,48 @@ public class Cadastro_Professores {
         lblNewLabel_3.setBounds(32, 213, 70, 14);
         lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 13));
         frmCadastroDeProfessores.getContentPane().add(lblNewLabel_3);
+        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Professores");
+        lblNewLabel_11_1.setToolTipText("");
+        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel_11_1.setForeground(SystemColor.infoText);
+        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
+        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
+        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
+        frmCadastroDeProfessores.getContentPane().add(lblNewLabel_11_1);
+        
+        JLabel lblTelefone = new JLabel("Telefone:");
+        lblTelefone.setLabelFor(txtFldTelefone);
+        lblTelefone.setFont(new Font("Arial", Font.BOLD, 13));
+        lblTelefone.setBounds(36, 258, 64, 14);
+        frmCadastroDeProfessores.getContentPane().add(lblTelefone);
+        
+        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
+    	lblNewLabel_11.setForeground(SystemColor.infoText);
+    	lblNewLabel_11.setToolTipText("");
+    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
+    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
+    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    	lblNewLabel_11.setBounds(10, 411, 765, 42);
+    	frmCadastroDeProfessores.getContentPane().add(lblNewLabel_11);
+    	
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(274, 67, 402, 342);
+        frmCadastroDeProfessores.getContentPane().add(scrollPane);
+
+        table = new JTable(model);
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (table.getSelectedRow() != -1) {
+                    int row = table.getSelectedRow();
+                    txtFldMatricula.setText(table.getValueAt(row, 0).toString());
+                    txtFldNomeProfessor.setText(table.getValueAt(row, 1).toString());
+                    textFldCpf.setText(table.getValueAt(row, 2).toString());
+                    txtFldEndereco.setText(table.getValueAt(row, 3).toString());
+                    txtFldTelefone.setText(table.getValueAt(row, 4).toString());
+                }
+            }
+        });
+        scrollPane.setViewportView(table);
 
         JButton btnInserir = new JButton("Salvar");
         btnInserir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -175,7 +225,7 @@ public class Cadastro_Professores {
                             }
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Selecione um aluno na tabela para realizar a alteração.");
+                        JOptionPane.showMessageDialog(null, "Selecione um professor na tabela para realizar a alteração.");
                     }
                 }
             }
@@ -217,7 +267,7 @@ public class Cadastro_Professores {
                             }
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Selecione um aluno na tabela para realizar a exclusão.");
+                        JOptionPane.showMessageDialog(null, "Selecione um professor na tabela para realizar a exclusão.");
                     }
                 }
             }
@@ -231,7 +281,7 @@ public class Cadastro_Professores {
 		frmCadastroDeProfessores.getContentPane().add(btnConsulta);
 		btnConsulta.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String matricula = JOptionPane.showInputDialog(null, "Informe a matrícula do aluno:");
+				String matricula = JOptionPane.showInputDialog(null, "Informe a matrícula do professor:");
 				if (matricula != null && !matricula.isEmpty()) {
 					String sql = "SELECT id_Professor, nome_Professor, cpf_Professor, email_Professor, telefone_Professor FROM professor WHERE id_Professor = ?";
 					conexao = Controle_EscolarConnection.ConnectDb();
@@ -295,57 +345,26 @@ public class Cadastro_Professores {
                 }
             }
         });
-
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(274, 67, 402, 342);
-        frmCadastroDeProfessores.getContentPane().add(scrollPane);
-        
-        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
-    	lblNewLabel_11.setForeground(SystemColor.infoText);
-    	lblNewLabel_11.setToolTipText("");
-    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
-    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
-    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
-    	lblNewLabel_11.setBounds(10, 411, 765, 42);
-    	frmCadastroDeProfessores.getContentPane().add(lblNewLabel_11);
-
-        table = new JTable(model);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (table.getSelectedRow() != -1) {
-                    int row = table.getSelectedRow();
-                    txtFldMatricula.setText(table.getValueAt(row, 0).toString());
-                    txtFldNomeProfessor.setText(table.getValueAt(row, 1).toString());
-                    textFldCpf.setText(table.getValueAt(row, 2).toString());
-                    txtFldEndereco.setText(table.getValueAt(row, 3).toString());
-                    txtFldTelefone.setText(table.getValueAt(row, 4).toString());
-                }
+        JButton btnFechar = new JButton("Fechar");
+        btnFechar.setFont(new Font("Arial", Font.BOLD, 12));
+        btnFechar.setBackground(new Color(255, 255, 255));
+        btnFechar.setBounds(686, 338, 89, 35);
+        btnFechar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                fecharPrograma(e);
             }
         });
-        scrollPane.setViewportView(table);
-        
-        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Professores");
-        lblNewLabel_11_1.setToolTipText("");
-        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_11_1.setForeground(SystemColor.infoText);
-        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
-        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
-        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
-        frmCadastroDeProfessores.getContentPane().add(lblNewLabel_11_1);
-        
-        txtFldTelefone = new JTextField();
-        txtFldTelefone.setColumns(10);
-        txtFldTelefone.setBounds(101, 248, 163, 35);
-        frmCadastroDeProfessores.getContentPane().add(txtFldTelefone);
-        
-        JLabel lblTelefone = new JLabel("Telefone:");
-        lblTelefone.setLabelFor(txtFldTelefone);
-        lblTelefone.setFont(new Font("Arial", Font.BOLD, 13));
-        lblTelefone.setBounds(36, 258, 64, 14);
-        frmCadastroDeProfessores.getContentPane().add(lblTelefone);
+        frmCadastroDeProfessores.getContentPane().add(btnFechar);  
         updateTable();
     }
-    	
+    
+    public void fecharPrograma(ActionEvent e) {
+        int confirmacao = JOptionPane.showConfirmDialog(frmCadastroDeProfessores, "Deseja realmente fechar o programa?", "Confirmação", JOptionPane.YES_NO_OPTION);
+        if (confirmacao == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
+    
     private void updateTable() {
         conexao = Controle_EscolarConnection.ConnectDb();
         if (conexao != null) {

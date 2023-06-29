@@ -1,19 +1,36 @@
 package controleEscolar;
-import javax.swing.*;
-import javax.swing.event.*;
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.awt.event.*;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.functions.util.Controle_EscolarConnection;
 
 public class Cadastro_Cursos {
 
     private JFrame CadastroDeCursos;
     private JTextField txtFldid_Curso;
     private JTextField txtFldNomeCursos;
-    private JTextField textFldid_Coordenador;
     private JTable table;
     private JComboBox<String> comboBox;
     private DefaultTableModel model;
@@ -48,7 +65,8 @@ public class Cadastro_Cursos {
         CadastroDeCursos.setBounds(100, 100, 800, 500);
         CadastroDeCursos.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         CadastroDeCursos.getContentPane().setLayout(null);
-
+        
+        
         model = new DefaultTableModel();
         model.addColumn("ID_Curso");
         model.addColumn("Nome_Curso");
@@ -69,6 +87,7 @@ public class Cadastro_Cursos {
         comboBox = new JComboBox<>();
         comboBox.setFont(new Font("Arial", Font.PLAIN, 12));
         comboBox.setBounds(101, 159, 163, 31);
+        comboBox.addItem("");
         CadastroDeCursos.getContentPane().add(comboBox);
         try {
             conexao = Controle_EscolarConnection.ConnectDb();
@@ -78,7 +97,7 @@ public class Cadastro_Cursos {
                      ResultSet rs = stmt.executeQuery(sql)) {
                     while (rs.next()) {
                         String idCoordenador = rs.getString("nome_Coordenador");
-                        comboBox.addItem("");
+                        
                         comboBox.addItem(idCoordenador);
                     }
                 }
@@ -104,6 +123,43 @@ public class Cadastro_Cursos {
         lblNewLabel_2.setBounds(32, 160, 66, 31);
         lblNewLabel_2.setFont(new Font("Arial", Font.BOLD, 13));
         CadastroDeCursos.getContentPane().add(lblNewLabel_2);
+        
+        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Cursos");
+        lblNewLabel_11_1.setToolTipText("");
+        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel_11_1.setForeground(SystemColor.infoText);
+        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
+        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
+        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
+        CadastroDeCursos.getContentPane().add(lblNewLabel_11_1);
+        
+        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
+    	lblNewLabel_11.setForeground(SystemColor.infoText);
+    	lblNewLabel_11.setToolTipText("");
+    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
+    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
+    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    	lblNewLabel_11.setBounds(10, 411, 765, 42);
+    	CadastroDeCursos.getContentPane().add(lblNewLabel_11);
+    	
+    	JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(274, 67, 402, 342);
+        CadastroDeCursos.getContentPane().add(scrollPane);
+     
+        table = new JTable(model);
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (table.getSelectedRow() != -1) {
+                    int row = table.getSelectedRow();
+                    txtFldid_Curso.setText(table.getValueAt(row, 0).toString());
+                    txtFldNomeCursos.setText(table.getValueAt(row, 1).toString());
+                    comboBox.setToolTipText(table.getValueAt(row, 2).toString());
+                    
+                }
+            }
+        });
+        scrollPane.setViewportView(table);
+
 
         JButton btnSalvar = new JButton("Salvar");
         btnSalvar.setBackground(SystemColor.text);
@@ -124,7 +180,9 @@ public class Cadastro_Cursos {
                                     pstmtInsert.setString(3, idCoordenador);
                                     pstmtInsert.executeUpdate();
                                     pstmtInsert.close();
-                                    myConn.close(); }
+                                    myConn.close(); 
+                                    updateTable();
+                                    }
                                 else {
                                     JOptionPane.showMessageDialog(CadastroDeCursos, "Preencha todos os campos obrigatórios");
                                 }
@@ -281,44 +339,26 @@ public class Cadastro_Cursos {
                 }
             }
         });
+        JButton btnFechar = new JButton("Fechar");
+	    btnFechar.setFont(new Font("Arial", Font.BOLD, 12));
+	    btnFechar.setBackground(new Color(255, 255, 255));
+	    btnFechar.setBounds(686, 338, 89, 35);
+	    btnFechar.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	            fecharPrograma(e);
+	        }
+	    });
+	    CadastroDeCursos.getContentPane().add(btnFechar);  
+	    updateTable();
+	}
+	
+	public void fecharPrograma(ActionEvent e) {
+	    int confirmacao = JOptionPane.showConfirmDialog(CadastroDeCursos, "Deseja realmente fechar o programa?", "Confirmação", JOptionPane.YES_NO_OPTION);
+	    if (confirmacao == JOptionPane.YES_OPTION) {
+	        System.exit(0);
+	    }
+	}
 
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(274, 67, 402, 342);
-        CadastroDeCursos.getContentPane().add(scrollPane);
-        
-        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
-    	lblNewLabel_11.setForeground(SystemColor.infoText);
-    	lblNewLabel_11.setToolTipText("");
-    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
-    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
-    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
-    	lblNewLabel_11.setBounds(10, 411, 765, 42);
-    	CadastroDeCursos.getContentPane().add(lblNewLabel_11);
-
-        table = new JTable(model);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (table.getSelectedRow() != -1) {
-                    int row = table.getSelectedRow();
-                    txtFldid_Curso.setText(table.getValueAt(row, 0).toString());
-                    txtFldNomeCursos.setText(table.getValueAt(row, 1).toString());
-                    comboBox.setToolTipText(table.getValueAt(row, 2).toString());
-                    
-                }
-            }
-        });
-        scrollPane.setViewportView(table);
-        
-        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Cursos");
-        lblNewLabel_11_1.setToolTipText("");
-        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_11_1.setForeground(SystemColor.infoText);
-        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
-        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
-        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
-        CadastroDeCursos.getContentPane().add(lblNewLabel_11_1);
-        updateTable();
-    }
     private String obterIdCoordenador(String nomeCurso) {
         try {
             var myConn = Controle_EscolarConnection.ConnectDb();

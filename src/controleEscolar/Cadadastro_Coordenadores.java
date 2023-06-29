@@ -2,6 +2,9 @@ package controleEscolar;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
+
+import com.functions.util.Controle_EscolarConnection;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -9,7 +12,7 @@ import java.sql.*;
 public class Cadadastro_Coordenadores {
 
     private JFrame CadadastroDeCoordenadores;
-    private JTextField txtFldMatricula;
+    private JTextField txtFldIdCoordenador;
     private JTextField txtFldNomeCoordenadores;
     private JTextField textFldemail_Coordenador;
     private JTextField txtFldcel_Coordenador;
@@ -46,17 +49,34 @@ public class Cadadastro_Coordenadores {
         CadadastroDeCoordenadores.setBounds(100, 100, 800, 500);
         CadadastroDeCoordenadores.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         CadadastroDeCoordenadores.getContentPane().setLayout(null);
-
+        
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setBounds(274, 67, 402, 342);
+        CadadastroDeCoordenadores.getContentPane().add(scrollPane);
+        
         model = new DefaultTableModel();
         model.addColumn("id_Coordenador");
         model.addColumn("Nome");
         model.addColumn("email_Coordenador");
         model.addColumn("Celular");
+        table = new JTable(model);
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (table.getSelectedRow() != -1) {
+                    int row = table.getSelectedRow();
+                    txtFldIdCoordenador.setText(table.getValueAt(row, 0).toString());
+                    txtFldNomeCoordenadores.setText(table.getValueAt(row, 1).toString());
+                    textFldemail_Coordenador.setText(table.getValueAt(row, 2).toString());
+                    txtFldcel_Coordenador.setText(table.getValueAt(row, 3).toString());
+                }
+            }
+        });
+        scrollPane.setViewportView(table);
 
-        txtFldMatricula = new JTextField();
-        txtFldMatricula.setBounds(101, 69, 163, 35);
-        txtFldMatricula.setColumns(10);
-        CadadastroDeCoordenadores.getContentPane().add(txtFldMatricula);
+        txtFldIdCoordenador = new JTextField();
+        txtFldIdCoordenador.setBounds(101, 69, 163, 35);
+        txtFldIdCoordenador.setColumns(10);
+        CadadastroDeCoordenadores.getContentPane().add(txtFldIdCoordenador);
 
         txtFldNomeCoordenadores = new JTextField();
         txtFldNomeCoordenadores.setBounds(101, 113, 163, 35);
@@ -93,6 +113,24 @@ public class Cadadastro_Coordenadores {
         lblNewLabel_3.setBounds(42, 207, 50, 31);
         lblNewLabel_3.setFont(new Font("Arial", Font.BOLD, 13));
         CadadastroDeCoordenadores.getContentPane().add(lblNewLabel_3);
+        
+        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Coordenadores");
+        lblNewLabel_11_1.setToolTipText("");
+        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel_11_1.setForeground(SystemColor.infoText);
+        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
+        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
+        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
+        CadadastroDeCoordenadores.getContentPane().add(lblNewLabel_11_1);
+        
+        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
+    	lblNewLabel_11.setForeground(SystemColor.infoText);
+    	lblNewLabel_11.setToolTipText("");
+    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
+    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
+    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    	lblNewLabel_11.setBounds(10, 411, 765, 42);
+    	CadadastroDeCoordenadores.getContentPane().add(lblNewLabel_11);
 
         JButton btnInserir = new JButton("Salvar");
         btnInserir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -105,14 +143,14 @@ public class Cadadastro_Coordenadores {
                     String sql = "INSERT INTO coordenacao(id_Coordenador, nome_Coordenador, email_Coordenador, cel_Coordenador) VALUES (?, ?, ?, ?)";
                     try {
                         mypst = conexao.prepareStatement(sql);
-                        mypst.setString(1, txtFldMatricula.getText());
+                        mypst.setString(1, txtFldIdCoordenador.getText());
                         mypst.setString(2, txtFldNomeCoordenadores.getText());
                         mypst.setString(3, textFldemail_Coordenador.getText());
                         mypst.setString(4, txtFldcel_Coordenador.getText());
                         mypst.executeUpdate();
-                        JOptionPane.showMessageDialog(null, "Coordenadores inserido com sucesso!");
+                        JOptionPane.showMessageDialog(null, "Coordenador inserido com sucesso!");
                         updateTable();
-                        txtFldMatricula.setText("");
+                        txtFldIdCoordenador.setText("");
                         txtFldNomeCoordenadores.setText("");
                         textFldemail_Coordenador.setText("");
                         txtFldcel_Coordenador.setText("");
@@ -142,18 +180,18 @@ public class Cadadastro_Coordenadores {
                 if (conexao != null) {
                     int row = table.getSelectedRow();
                     if (row != -1) {
-                        String matricula = table.getValueAt(row, 0).toString();
                         String sql = "UPDATE coordenacao SET nome_Coordenador=?, email_Coordenador=?, cel_Coordenador=? WHERE id_Coordenador=?";
                         try {
                             mypst = conexao.prepareStatement(sql);
                             mypst.setString(1, txtFldNomeCoordenadores.getText());
                             mypst.setString(2, textFldemail_Coordenador.getText());
                             mypst.setString(3, txtFldcel_Coordenador.getText());
-                            mypst.setString(4, matricula);
+                            mypst.setString(4, table.getValueAt(row, 0).toString()); // Utiliza o valor existente do id_Coordenador
                             mypst.executeUpdate();
+                            mypst.close();
                             JOptionPane.showMessageDialog(null, "Dados alterados com sucesso!");
                             updateTable();
-                            txtFldMatricula.setText("");
+                            txtFldIdCoordenador.setText("");
                             txtFldNomeCoordenadores.setText("");
                             textFldemail_Coordenador.setText("");
                             txtFldcel_Coordenador.setText("");
@@ -162,7 +200,6 @@ public class Cadadastro_Coordenadores {
                         } finally {
                             try {
                                 myrs.close();
-                                mypst.close();
                                 conexao.close();
                             } catch (Exception ex) {
                                 JOptionPane.showMessageDialog(null, ex);
@@ -194,7 +231,7 @@ public class Cadadastro_Coordenadores {
                             mypst.executeUpdate();
                             JOptionPane.showMessageDialog(null, "Coordenadores excluído com sucesso!");
                             updateTable();
-                            txtFldMatricula.setText("");
+                            txtFldIdCoordenador.setText("");
                             txtFldNomeCoordenadores.setText("");
                             textFldemail_Coordenador.setText("");
                             txtFldcel_Coordenador.setText("");
@@ -265,7 +302,7 @@ public class Cadadastro_Coordenadores {
 		CadadastroDeCoordenadores.getContentPane().add(btnLimpar);
 		btnLimpar.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
-		        txtFldMatricula.setText("");
+		        txtFldIdCoordenador.setText("");
 		        txtFldNomeCoordenadores.setText("");
 		        textFldemail_Coordenador.setText("");
 		        txtFldcel_Coordenador.setText("");
@@ -286,45 +323,25 @@ public class Cadadastro_Coordenadores {
                 }
             }
         });
-
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(274, 67, 402, 342);
-        CadadastroDeCoordenadores.getContentPane().add(scrollPane);
-        
-        JLabel lblNewLabel_11 = new JLabel("Todos os direitos são reservados a V.G.R.B.S Serviços ");
-    	lblNewLabel_11.setForeground(SystemColor.infoText);
-    	lblNewLabel_11.setToolTipText("");
-    	lblNewLabel_11.setHorizontalAlignment(SwingConstants.CENTER);
-    	lblNewLabel_11.setBackground(SystemColor.activeCaption);
-    	lblNewLabel_11.setFont(new Font("Tahoma", Font.PLAIN, 14));
-    	lblNewLabel_11.setBounds(10, 411, 765, 42);
-    	CadadastroDeCoordenadores.getContentPane().add(lblNewLabel_11);
-
-        table = new JTable(model);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (table.getSelectedRow() != -1) {
-                    int row = table.getSelectedRow();
-                    txtFldMatricula.setText(table.getValueAt(row, 0).toString());
-                    txtFldNomeCoordenadores.setText(table.getValueAt(row, 1).toString());
-                    textFldemail_Coordenador.setText(table.getValueAt(row, 2).toString());
-                    txtFldcel_Coordenador.setText(table.getValueAt(row, 3).toString());
-                }
+        JButton btnFechar = new JButton("Fechar");
+        btnFechar.setFont(new Font("Arial", Font.BOLD, 12));
+        btnFechar.setBackground(new Color(255, 255, 255));
+        btnFechar.setBounds(686, 338, 89, 35);
+        btnFechar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                fecharPrograma(e);
             }
         });
-        scrollPane.setViewportView(table);
-        
-        JLabel lblNewLabel_11_1 = new JLabel("Cadastro de Coordenadores");
-        lblNewLabel_11_1.setToolTipText("");
-        lblNewLabel_11_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_11_1.setForeground(SystemColor.infoText);
-        lblNewLabel_11_1.setFont(new Font("Arial", Font.PLAIN, 20));
-        lblNewLabel_11_1.setBackground(SystemColor.activeCaption);
-        lblNewLabel_11_1.setBounds(0, 10, 785, 42);
-        CadadastroDeCoordenadores.getContentPane().add(lblNewLabel_11_1);
+        CadadastroDeCoordenadores.getContentPane().add(btnFechar);  
         updateTable();
     }
-    	
+    
+    public void fecharPrograma(ActionEvent e) {
+        int confirmacao = JOptionPane.showConfirmDialog(CadadastroDeCoordenadores, "Deseja realmente fechar o programa?", "Confirmação", JOptionPane.YES_NO_OPTION);
+        if (confirmacao == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
     private void updateTable() {
         conexao = Controle_EscolarConnection.ConnectDb();
         if (conexao != null) {
