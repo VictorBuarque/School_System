@@ -9,17 +9,13 @@ import java.sql.*;
 public class Cadastro_Notas {
 
     private JFrame frmCadastroDenotas;
-    private JTextField txtFldidProfessor;
-    private JTextField txtFldIdDisciplina;
-    private JTextField textFldIdTurma;
-    private JTextField txtFldIdDataNota;
+    private JTextField txtFldDataNota;
     private JTable table;
     private DefaultTableModel model;
     private Connection conexao;
     private PreparedStatement mypst;
     private ResultSet myrs;
     private JTextField txtFldNota;
-    private JTextField txtFldMatricula;
 
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
@@ -58,25 +54,83 @@ public class Cadastro_Notas {
         model.addColumn("Data Nota");
         model.addColumn("Nota Disc.");
 
-        txtFldidProfessor = new JTextField();
-        txtFldidProfessor.setBounds(101, 69, 163, 35);
-        txtFldidProfessor.setColumns(10);
-        frmCadastroDenotas.getContentPane().add(txtFldidProfessor);
+        JComboBox<String> comboBox_1 = new JComboBox<>();
+        comboBox_1.setFont(new Font("Arial", Font.PLAIN, 12));
+        comboBox_1.setBounds(101, 71, 163, 31);
+        frmCadastroDenotas.getContentPane().add(comboBox_1);
 
-        txtFldIdDisciplina = new JTextField();
-        txtFldIdDisciplina.setBounds(101, 113, 163, 35);
-        txtFldIdDisciplina.setColumns(10);
-        frmCadastroDenotas.getContentPane().add(txtFldIdDisciplina);
+        JComboBox<String> comboBox_2 = new JComboBox<>();
+        comboBox_2.setFont(new Font("Arial", Font.PLAIN, 12));
+        comboBox_2.setBounds(101, 112, 163, 31);
+        frmCadastroDenotas.getContentPane().add(comboBox_2);
 
-        textFldIdTurma = new JTextField();
-        textFldIdTurma.setBounds(101, 158, 163, 35);
-        textFldIdTurma.setColumns(10);
-        frmCadastroDenotas.getContentPane().add(textFldIdTurma);
+        JComboBox<String> comboBox_3 = new JComboBox<>();
+        comboBox_3.setFont(new Font("Arial", Font.PLAIN, 12));
+        comboBox_3.setBounds(101, 156, 163, 31);
+        frmCadastroDenotas.getContentPane().add(comboBox_3);
 
-        txtFldIdDataNota = new JTextField();
-        txtFldIdDataNota.setBounds(101, 248, 163, 35);
-        txtFldIdDataNota.setColumns(10);
-        frmCadastroDenotas.getContentPane().add(txtFldIdDataNota);
+        JComboBox<String> comboBox_4 = new JComboBox<>();
+        comboBox_4.setFont(new Font("Arial", Font.PLAIN, 12));
+        comboBox_4.setBounds(101, 203, 163, 31);
+        frmCadastroDenotas.getContentPane().add(comboBox_4);
+
+        try {
+            conexao = Controle_EscolarConnection.ConnectDb();
+            if (conexao != null) {
+                JOptionPane.showMessageDialog(frmCadastroDenotas, "Conexão com o banco de dados estabelecida com sucesso!");
+                String sql = "SELECT * FROM professor";
+                try (Statement stmt = conexao.createStatement();
+                     ResultSet rs = stmt.executeQuery(sql)) {
+                    comboBox_1.addItem("");
+                    while (rs.next()) {
+                        String idProfessor = rs.getString("nome_Professor");
+                        comboBox_1.addItem(idProfessor);
+                    }
+                }
+
+                sql = "SELECT * FROM disciplina";
+                try (Statement stmt = conexao.createStatement();
+                     ResultSet rs = stmt.executeQuery(sql)) {
+                    comboBox_2.addItem("");
+                    while (rs.next()) {
+                        String idDisciplina = rs.getString("nome_Disciplina");
+                        comboBox_2.addItem(idDisciplina);
+                    }
+                }
+
+                sql = "SELECT * FROM turmas";
+                try (Statement stmt = conexao.createStatement();
+                     ResultSet rs = stmt.executeQuery(sql)) {
+                    comboBox_3.addItem("");
+                    while (rs.next()) {
+                        String idTurma = rs.getString("id_Turma");
+                        comboBox_3.addItem(idTurma);
+                    }
+                }
+
+                sql = "SELECT * FROM alunos";
+                try (Statement stmt = conexao.createStatement();
+                     ResultSet rs = stmt.executeQuery(sql)) {
+                    comboBox_4.addItem("");
+                    while (rs.next()) {
+                        String nrMatricula = rs.getString("nome_Aluno");
+                        comboBox_4.addItem(nrMatricula);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(frmCadastroDenotas, "Não foi possível conectar ao banco de dados.");
+            }
+        } catch (Exception erro) {
+            JOptionPane.showMessageDialog(frmCadastroDenotas, erro);
+        }
+
+        frmCadastroDenotas.setVisible(true);
+
+
+        txtFldDataNota = new JTextField();
+        txtFldDataNota.setBounds(101, 248, 163, 35);
+        txtFldDataNota.setColumns(10);
+        frmCadastroDenotas.getContentPane().add(txtFldDataNota);
 
         JLabel lblNewLabel = new JLabel("ID Professor:");
         lblNewLabel.setForeground(SystemColor.infoText);
@@ -104,40 +158,44 @@ public class Cadastro_Notas {
         btnInserir.setBackground(new Color(255, 255, 255));
         btnInserir.setBounds(686, 69, 89, 35);
         btnInserir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                conexao = Controle_EscolarConnection.ConnectDb();
-                if (conexao != null) {
-                    String sql = "INSERT INTO notas(id_Professor, id_Disciplina, id_Turma, nr_Matricula, data_Nota, nota_Disciplina) VALUES (?, ?, ?, ?, ?, ?)";
-                    try {
-                        mypst = conexao.prepareStatement(sql);
-                        mypst.setString(1, txtFldidProfessor.getText());
-                        mypst.setString(2, txtFldIdDisciplina.getText());
-                        mypst.setString(3, textFldIdTurma.getText());
-                        mypst.setString(4, txtFldMatricula.getText());
-                        mypst.setString(5, txtFldIdDataNota.getText());
-                        mypst.setString(6, txtFldNota.getText());
-                        mypst.executeUpdate();
-                        JOptionPane.showMessageDialog(null, "Nota cadastrada com sucesso!");
-                        updateTable();
-                        txtFldidProfessor.setText("");
-                        txtFldIdDisciplina.setText("");
-                        textFldIdTurma.setText("");
-                        txtFldIdDataNota.setText("");
-                        txtFldNota.setText("");
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(null, ex);
-                    } finally {
-                        try {
-                            myrs.close();
-                            mypst.close();
-                            conexao.close();
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(null, ex);
-                        }
-                    }
-                }
-            }
-        });
+        	public void actionPerformed(ActionEvent e) {
+        	conexao = Controle_EscolarConnection.ConnectDb();
+    	    String idProfessor = obterIdProfessor((String) comboBox_1.getSelectedItem());
+    	    String idDisciplina = obterIdDisciplina((String) comboBox_2.getSelectedItem());
+    	    String idTurma = obterIdTurma((String) comboBox_3.getSelectedItem());
+    	    String nrMatricula = obterNomeAluno((String) comboBox_4.getSelectedItem());
+    	    String data = txtFldDataNota.getText();
+    	    String nota = txtFldNota.getText();
+    	    try {
+    	        if (conexao != null) {
+    	            String sqlInsert = "INSERT INTO notas (id_Professor, id_Disciplina, id_Turma, nr_Matricula, data_Nota, nota_Disciplina) VALUES (?, ?, ?, ?, ?,?)";
+    	            PreparedStatement pstmtInsert = conexao.prepareStatement(sqlInsert);
+    	            pstmtInsert.setString(1, idProfessor);
+    	            pstmtInsert.setString(2, idDisciplina);
+    	            pstmtInsert.setString(3, idTurma);
+    	            pstmtInsert.setString(4, nrMatricula);
+    	            pstmtInsert.setString(5, data);
+    	            pstmtInsert.setString(6, nota);
+    	            pstmtInsert.executeUpdate();
+    	            pstmtInsert.close();
+    	            conexao.close();
+    	            JOptionPane.showMessageDialog(frmCadastroDenotas, "Dados salvos com sucesso!");
+    	            updateTable();
+    	            comboBox_1.setToolTipText("");
+    	            comboBox_2.setToolTipText("");
+    	            comboBox_3.setToolTipText("");
+    	            comboBox_4.setToolTipText("");
+    	            txtFldDataNota.setText("");
+    	            txtFldNota.setText("");
+    	        } else {
+    	            JOptionPane.showMessageDialog(frmCadastroDenotas, "Não foi possível conectar ao banco de dados.");
+    	        }
+    	    } catch (SQLException ex) {
+    	        JOptionPane.showMessageDialog(frmCadastroDenotas, "Erro ao incluir registro: " + ex.getMessage());
+    	    }
+    	 }
+    }
+);
         frmCadastroDenotas.getContentPane().add(btnInserir);
 
         JButton btnAlterar = new JButton("Alterar");
@@ -145,30 +203,35 @@ public class Cadastro_Notas {
         btnAlterar.setBackground(new Color(255, 255, 255));
         btnAlterar.setBounds(686, 115, 89, 35);
         btnAlterar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        	public void actionPerformed(ActionEvent e) {
                 conexao = Controle_EscolarConnection.ConnectDb();
+                String idProfessor = obterIdProfessor((String) comboBox_1.getSelectedItem());
+        	    String idDisciplina = obterIdDisciplina((String) comboBox_2.getSelectedItem());
+        	    String idTurma = obterIdTurma((String) comboBox_3.getSelectedItem());
+        	    String nrMatricula = obterNomeAluno((String) comboBox_4.getSelectedItem());
+        	    String data = txtFldDataNota.getText();
+        	    String nota = txtFldNota.getText();
                 if (conexao != null) {
                     int row = table.getSelectedRow();
                     if (row != -1) {
-                        String idProfessor = table.getValueAt(row, 1).toString();
-                        String sql = "UPDATE notas SET  id_Disciplina=?, id_Turma=?, nr_Matricula=?,data_Nota=?, nota_Disciplina=? WHERE id_Professor=?";
+                        String sql = "UPDATE notas SET id_Professor=?, id_Disciplina=?, id_Turma=?, nr_Matricula=?, nota_Disciplina=?WHERE data_Nota=?";
                         try {
                             mypst = conexao.prepareStatement(sql);
-                            mypst.setString(1, txtFldIdDisciplina.getText());
-                            mypst.setString(2, textFldIdTurma.getText());
-                            mypst.setString(3, txtFldMatricula.getText());
-                            mypst.setString(4, txtFldIdDataNota.getText());
-                            mypst.setString(5, txtFldNota.getText());
-                            mypst.setString(6, idProfessor);
+                            mypst.setString(1, idProfessor);
+                            mypst.setString(2, idDisciplina);
+                            mypst.setString(3, idTurma);
+                            mypst.setString(4, nrMatricula);
+                            mypst.setString(5, nota);
+                            mypst.setString(6, data);
                             mypst.executeUpdate();
                             JOptionPane.showMessageDialog(null, "Dados alterados com sucesso!");
                             updateTable();
-                            txtFldidProfessor.setText("");
-                            txtFldIdDisciplina.setText("");
-                            textFldIdTurma.setText("");
-                            txtFldMatricula.setText("");
-                            txtFldIdDataNota.setText("");
-                            txtFldNota.setText("");
+                            comboBox_1.setToolTipText("");
+            	            comboBox_2.setToolTipText("");
+            	            comboBox_3.setToolTipText("");
+            	            comboBox_4.setToolTipText("");
+            	            txtFldDataNota.setText("");
+            	            txtFldNota.setText("");
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(null, ex);
                         } finally {
@@ -181,13 +244,12 @@ public class Cadastro_Notas {
                             }
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Selecione uma nota na tabela para realizar a alteração.");
+                        JOptionPane.showMessageDialog(null, "Selecione um aluno na tabela para realizar a alteração.");
                     }
                 }
             }
         });
         frmCadastroDenotas.getContentPane().add(btnAlterar);
-
         JButton btnExcluir = new JButton("Excluir");
         btnExcluir.setFont(new Font("Arial", Font.BOLD, 12));
         btnExcluir.setBackground(new Color(255, 255, 255));
@@ -198,20 +260,20 @@ public class Cadastro_Notas {
                 if (conexao != null) {
                     int row = table.getSelectedRow();
                     if (row != -1) {
-                    	String data_Nota = table.getValueAt(row, 4).toString();
+                    	String data = table.getValueAt(row, 5).toString();
                     	String sql = "DELETE FROM notas WHERE data_Nota=?";
                     	try {
                     	    mypst = conexao.prepareStatement(sql);
-                    	    mypst.setString(1, data_Nota);
+                    	    mypst.setString(1, data);
                     	    mypst.executeUpdate();
                     	    JOptionPane.showMessageDialog(null, "Nota excluída com sucesso!");
                     	    updateTable();
-                    	    txtFldidProfessor.setText("");
-                    	    txtFldIdDisciplina.setText("");
-                    	    txtFldMatricula.setText("");
-                    	    textFldIdTurma.setText("");
-                    	    txtFldIdDataNota.setText("");
-                    	    txtFldNota.setText("");
+                    	    comboBox_1.setToolTipText("");
+            	            comboBox_2.setToolTipText("");
+            	            comboBox_3.setToolTipText("");
+            	            comboBox_4.setToolTipText("");
+            	            txtFldDataNota.setText("");
+            	            txtFldNota.setText("");
                     	} catch (Exception ex) {
                     	    JOptionPane.showMessageDialog(null, ex);
                     	} finally {
@@ -236,18 +298,18 @@ public class Cadastro_Notas {
 		frmCadastroDenotas.getContentPane().add(btnConsulta);
 		btnConsulta.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			    String data_Nota = JOptionPane.showInputDialog(null, "Informe a data da prova:");
-			    String nr_Matricula = JOptionPane.showInputDialog(null, "Informe o número de matrícula:");
+			    String data = JOptionPane.showInputDialog(null, "Informe a data da prova:");
+			    String nrMatricula = JOptionPane.showInputDialog(null, "Informe o número de matrícula:");
 			    
-			    if (data_Nota != null && !data_Nota.isEmpty() && nr_Matricula != null && !nr_Matricula.isEmpty()) {
+			    if (data != null && !data.isEmpty() && nrMatricula != null && !nrMatricula.isEmpty()) {
 			        String sql = "SELECT id_Professor, id_Disciplina, id_Turma, nr_Matricula, data_Nota, nota_Disciplina FROM notas WHERE data_Nota = ? AND nr_Matricula = ?";
 			        conexao = Controle_EscolarConnection.ConnectDb();
 			        
 			        if (conexao != null) {
 			            try {
 			                mypst = conexao.prepareStatement(sql);
-			                mypst.setString(1, data_Nota);
-			                mypst.setString(2, nr_Matricula);
+			                mypst.setString(1, data);
+			                mypst.setString(2, nrMatricula);
 			                myrs = mypst.executeQuery();
 			                
 			                if (myrs.next()) {
@@ -282,18 +344,18 @@ public class Cadastro_Notas {
 		btnLimpar.setBackground(new Color(255, 255, 255));
 		btnLimpar.setFont(new Font("Arial", Font.BOLD, 12));
 		btnLimpar.setBounds(686, 248, 89, 35);
-		frmCadastroDenotas.getContentPane().add(btnLimpar);
 		btnLimpar.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
-		        txtFldidProfessor.setText("");
-		        txtFldIdDisciplina.setText("");
-		        textFldIdTurma.setText("");
-		        txtFldMatricula.setText("");
-		        txtFldIdDataNota.setText("");
+		        comboBox_1.setSelectedIndex(0);
+		        comboBox_2.setSelectedIndex(0);
+		        comboBox_3.setSelectedIndex(0);
+		        comboBox_4.setSelectedIndex(0);
+		        txtFldDataNota.setText("");
 		        txtFldNota.setText("");
 		    }
 		});
-        
+		frmCadastroDenotas.getContentPane().add(btnLimpar);
+		
         JButton btnImprimir = new JButton("Imprimir");
         btnImprimir.setBackground(new Color(255, 255, 255));
         btnImprimir.setFont(new Font("Arial", Font.BOLD, 12));
@@ -327,11 +389,11 @@ public class Cadastro_Notas {
             public void valueChanged(ListSelectionEvent event) {
                 if (table.getSelectedRow() != -1) {
                     int row = table.getSelectedRow();
-                    txtFldidProfessor.setText(table.getValueAt(row, 0).toString());
-                    txtFldIdDisciplina.setText(table.getValueAt(row, 1).toString());
-                    textFldIdTurma.setText(table.getValueAt(row, 2).toString());
-                    txtFldMatricula.setText(table.getValueAt(row, 3).toString());
-                    txtFldIdDataNota.setText(table.getValueAt(row, 4).toString());
+                    comboBox_1.setToolTipText(table.getValueAt(row, 0).toString());
+    	            comboBox_2.setToolTipText(table.getValueAt(row, 1).toString());
+    	            comboBox_3.setToolTipText(table.getValueAt(row, 2).toString());
+    	            comboBox_4.setToolTipText(table.getValueAt(row, 3).toString());
+    	            txtFldDataNota.setText(table.getValueAt(row, 4).toString());
                     txtFldNota.setText(table.getValueAt(row, 5).toString());
                 }
             }
@@ -358,19 +420,91 @@ public class Cadastro_Notas {
         lblTurma.setBounds(42, 295, 54, 31);
         frmCadastroDenotas.getContentPane().add(lblTurma);
         
-        txtFldMatricula = new JTextField();
-        txtFldMatricula.setColumns(10);
-        txtFldMatricula.setBounds(101, 203, 163, 35);
-        frmCadastroDenotas.getContentPane().add(txtFldMatricula);
-        
         JLabel lblNewLabel_3_1 = new JLabel("Nrº Matricula:");
         lblNewLabel_3_1.setFont(new Font("Arial", Font.BOLD, 13));
         lblNewLabel_3_1.setBounds(11, 205, 89, 31);
         frmCadastroDenotas.getContentPane().add(lblNewLabel_3_1);
+        
+        
         updateTable();
     }
-    
-    	
+    private String obterIdProfessor(String nomeProfessor) {
+        try {
+            var myConn = Controle_EscolarConnection.ConnectDb();
+            if (myConn != null) {
+                String sql = "SELECT id_Professor FROM professor WHERE nome_Professor = ?";
+                try (PreparedStatement pstmt = myConn.prepareStatement(sql)) {
+                    pstmt.setString(1, nomeProfessor);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("id_Professor");
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(frmCadastroDenotas, "Erro ao obter ID do Professor: " + ex.getMessage());
+        }
+        return null;
+    }
+
+    private String obterIdDisciplina(String nomeDisciplina) {
+        try {
+            var myConn = Controle_EscolarConnection.ConnectDb();
+            if (myConn != null) {
+                String sql = "SELECT id_Disciplina FROM disciplina WHERE nome_Disciplina = ?";
+                try (PreparedStatement pstmt = myConn.prepareStatement(sql)) {
+                    pstmt.setString(1, nomeDisciplina);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("id_Disciplina");
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(frmCadastroDenotas, "Erro ao obter ID da disciplina: " + ex.getMessage());
+        }
+        return null;
+    }
+    private String obterIdTurma(String idTurma) {
+        try {
+            var myConn = Controle_EscolarConnection.ConnectDb();
+            if (myConn != null) {
+                String sql = "SELECT id_Turma FROM turmas WHERE id_Turma = ?";
+                try (PreparedStatement pstmt = myConn.prepareStatement(sql)) {
+                    pstmt.setString(1, idTurma);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("id_Turma");
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(frmCadastroDenotas, "Erro ao obter ID da Turma: " + ex.getMessage());
+        }
+        return null;
+    }
+    private String obterNomeAluno(String nrMatricula) {
+        try {
+            var myConn = Controle_EscolarConnection.ConnectDb();
+            if (myConn != null) {
+                String sql = "SELECT nr_Matricula FROM alunos WHERE nome_Aluno = ?";
+                try (PreparedStatement pstmt = myConn.prepareStatement(sql)) {
+                    pstmt.setString(1, nrMatricula);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("nr_Matricula");
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(frmCadastroDenotas, "Erro ao obter o Nrº de Matricula do(a) aluno(a): " + ex.getMessage());
+        }
+        return null;
+    }	
     private void updateTable() {
         conexao = Controle_EscolarConnection.ConnectDb();
         if (conexao != null) {
@@ -385,10 +519,10 @@ public class Cadastro_Notas {
                     String idProfessor = myrs.getString("id_Professor");
                     String idDisciplina = myrs.getString("id_Disciplina");
                     String idTurma = myrs.getString("id_Turma");
-                    String matricula = myrs.getString("nr_Matricula");
-                    String data_Nota = myrs.getString("data_Nota");
+                    String nrMatricula = myrs.getString("nr_Matricula");
+                    String data = myrs.getString("data_Nota");
                     String nota = myrs.getString("nota_Disciplina");
-                    model.addRow(new Object[]{idProfessor, idDisciplina, idTurma, matricula, data_Nota, nota});
+                    model.addRow(new Object[]{idProfessor, idDisciplina, idTurma, nrMatricula, data, nota});
                 }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, ex);
